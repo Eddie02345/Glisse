@@ -12,17 +12,15 @@
     (function () {
       try {
         var saved = JSON.parse(localStorage.getItem("glisse.prefs") || "{}");
-        if (saved && ["light", "dark", "sepia"].indexOf(saved.theme) > -1) {
-          document.documentElement.dataset.theme = saved.theme;
-        }
+        var systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var theme = (saved && ["light", "dark", "sepia"].indexOf(saved.theme) > -1) ? saved.theme : (systemDark ? "dark" : "light");
+        document.documentElement.dataset.theme = theme;
         if (saved && ["sans", "serif", "mono"].indexOf(saved.font) > -1) {
           document.documentElement.dataset.font = saved.font;
         }
-        if (saved && ["light", "dark", "sepia"].indexOf(saved.theme) > -1) {
-          var colors = { light: "#f4f5f2", dark: "#111417", sepia: "#efe6d4" };
-          var meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) meta.setAttribute("content", colors[saved.theme]);
-        }
+        var colors = { light: "#f4f5f2", dark: "#111417", sepia: "#efe6d4" };
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute("content", colors[theme]);
       } catch (error) {}
     })();
   </script>
@@ -2619,8 +2617,17 @@
         return cleaned || "Untitled document";
       }
 
+      function systemTheme() {
+        try {
+          return (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+        } catch (error) {
+          return "light";
+        }
+      }
+
       function loadPrefs() {
         const prefs = Object.assign({}, DEFAULTS);
+        prefs.theme = systemTheme();
         try {
           const saved = JSON.parse(localStorage.getItem("glisse.prefs") || "{}");
           if (!saved || typeof saved !== "object") return prefs;
@@ -4380,6 +4387,19 @@
         placeControls();
         bindEvents();
         updateToolbarHeight();
+
+        const colorSchemeQuery = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+        const handleColorScheme = function () {
+          try {
+            const saved = JSON.parse(localStorage.getItem("glisse.prefs") || "{}");
+            if (saved && ["light", "dark", "sepia"].includes(saved.theme)) return;
+          } catch (error) {}
+          setTheme(systemTheme(), false);
+        };
+        if (colorSchemeQuery) {
+          if (colorSchemeQuery.addEventListener) colorSchemeQuery.addEventListener("change", handleColorScheme);
+          else if (colorSchemeQuery.addListener) colorSchemeQuery.addListener(handleColorScheme);
+        }
 
         if (typeof pdfjsLib === "undefined") {
           const message = "The reading engine could not be loaded. Check your connection and reload the page.";

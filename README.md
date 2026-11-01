@@ -29,4 +29,4 @@ Then visit `http://localhost:8000`.
 
 ## License
 
-No license specified.
+This project is licensed under the GNU General Public License v3.0. See [LICENSE](LICENSE).

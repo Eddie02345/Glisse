@@ -2,7 +2,7 @@
 <html lang="en" data-theme="light" data-font="sans">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Glisse — a quieter way to read</title>
   <meta name="description" content="A private, on-device PDF reader with an adaptive fixation reading mode.">
   <meta name="color-scheme" content="light dark">
@@ -35,7 +35,7 @@
       --surface-tint: #eff0eb;
       --ink: #181b18;
       --ink-soft: #4f5750;
-      --ink-faint: #69716a;
+      --ink-faint: #606861;
       --line: rgba(24, 27, 24, 0.11);
       --line-strong: rgba(24, 27, 24, 0.23);
       --accent: #2e5b4d;
@@ -54,6 +54,7 @@
       --reader-leading: 1.8;
       --reader-measure: 68ch;
       --toolbar-h: 132px;
+      --keyboard-inset: 0px;
       color-scheme: light;
     }
 
@@ -111,11 +112,14 @@
 
     html {
       -webkit-text-size-adjust: 100%;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior-y: contain;
     }
 
     body {
       margin: 0;
       min-height: 100svh;
+      min-height: 100dvh;
       background: var(--bg);
       color: var(--ink);
       font-family: var(--sans);
@@ -123,8 +127,14 @@
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      -webkit-tap-highlight-color: transparent;
       text-rendering: optimizeLegibility;
       transition: background-color 240ms ease, color 240ms ease;
+      overscroll-behavior-y: contain;
+    }
+
+    body.sheet-open {
+      overflow: hidden;
     }
 
     body.is-dragging { cursor: copy; }
@@ -134,10 +144,12 @@
     select { font: inherit; color: inherit; }
 
     button { cursor: pointer; }
+    input, textarea { caret-color: var(--accent); }
 
     button:disabled { cursor: not-allowed; }
 
     [hidden] { display: none !important; }
+    h1, h2, h3 { text-wrap: balance; }
 
     ::selection {
       background: var(--accent);
@@ -147,6 +159,10 @@
     :focus-visible {
       outline: 2px solid var(--accent);
       outline-offset: 2px;
+    }
+
+    body.is-pointer :focus-visible {
+      outline: none;
     }
 
     * {
@@ -174,6 +190,12 @@
       position: sticky;
       top: 0;
       z-index: 80;
+      background: transparent;
+      transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toolbar-chrome {
+      padding-top: env(safe-area-inset-top);
       background: var(--bg);
       background: color-mix(in srgb, var(--bg) 87%, transparent);
       -webkit-backdrop-filter: blur(18px) saturate(1.15);
@@ -203,7 +225,7 @@
       font-size: 1.52rem;
       font-weight: 600;
       line-height: 1;
-      letter-spacing: -0.06em;
+      letter-spacing: -0.04em;
       color: var(--ink);
       user-select: none;
     }
@@ -242,7 +264,7 @@
     .doc-stat {
       overflow: hidden;
       color: var(--ink-faint);
-      font-size: 0.64rem;
+      font-size: 0.75rem;
       font-variant-numeric: tabular-nums;
       letter-spacing: 0.025em;
       text-overflow: ellipsis;
@@ -346,11 +368,17 @@
 
     .toolbar-controls {
       display: flex;
+      width: min(100%, 1680px);
+      flex-wrap: wrap;
       align-items: flex-end;
       gap: 20px;
-      margin-top: 8px;
-      padding: 9px 0 9px;
-      border-top: 1px solid var(--line);
+      margin: 0 auto;
+      padding: 9px clamp(14px, 2.4vw, 32px) 9px;
+      background: var(--bg);
+      background: color-mix(in srgb, var(--bg) 92%, transparent);
+      -webkit-backdrop-filter: blur(18px) saturate(1.15);
+      backdrop-filter: blur(18px) saturate(1.15);
+      border-bottom: 1px solid var(--line);
     }
 
     .control {
@@ -360,19 +388,19 @@
       gap: 2px;
     }
 
-    .control--fixation { width: 148px; }
-    .control--size { width: 98px; }
-    .control--leading { width: 98px; }
-    .control--measure { width: 112px; }
-    .control--type { width: 138px; }
+    .control--fixation { width: 156px; }
+    .control--size { width: 124px; }
+    .control--leading { width: 120px; }
+    .control--measure { width: 128px; }
+    .control--type { width: 150px; }
 
     .control-label {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
-      gap: 12px;
+      gap: 8px;
       color: var(--ink-faint);
-      font-size: 0.57rem;
+      font-size: 0.75rem;
       font-weight: 500;
       letter-spacing: 0.13em;
       line-height: 1.25;
@@ -382,7 +410,7 @@
 
     .control-label output {
       color: var(--ink-soft);
-      font-size: 0.62rem;
+      font-size: 0.75rem;
       font-variant-numeric: tabular-nums;
       letter-spacing: 0.01em;
       text-transform: none;
@@ -488,7 +516,7 @@
     }
 
     .settings-label {
-      font-size: 0.61rem;
+      font-size: 0.75rem;
       letter-spacing: 0.02em;
       white-space: nowrap;
     }
@@ -499,7 +527,7 @@
       gap: 5px;
       padding: 0 7px;
       color: var(--ink-faint);
-      font-size: 0.66rem;
+      font-size: 0.75rem;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
     }
@@ -512,7 +540,7 @@
       border-radius: 6px;
       background: transparent;
       color: var(--ink);
-      font-size: 0.71rem;
+      font-size: 0.75rem;
       font-variant-numeric: tabular-nums;
       text-align: center;
     }
@@ -524,6 +552,77 @@
       background: var(--surface-raised);
       outline: none;
     }
+
+    .sheet-head {
+      display: none;
+    }
+
+    .sheet-handle {
+      width: 44px;
+      height: 5px;
+      margin: 0 auto;
+      border-radius: 999px;
+      background: var(--line-strong);
+    }
+
+    .sheet-head-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .sheet-title {
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+    }
+
+    .sheet-close {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      flex: none;
+      padding: 0;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: var(--surface);
+      color: var(--ink-soft);
+    }
+
+    .sheet-close svg { width: 18px; height: 18px; }
+
+    .sheet-close:active { background: var(--surface-tint); color: var(--ink); }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slider-row input[type="range"] { flex: 1 1 auto; }
+
+    .step-button {
+      width: 40px;
+      height: 40px;
+      flex: none;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface-raised);
+      color: var(--ink-soft);
+      font-size: 1.15rem;
+      line-height: 1;
+      touch-action: manipulation;
+    }
+
+    .step-button:hover,
+    .step-button:active { color: var(--ink); border-color: var(--line-strong); }
+
+    .step-button:active { transform: scale(0.94); }
 
     .progress-rail {
       height: 2px;
@@ -540,12 +639,114 @@
       transition: transform 90ms linear;
     }
 
+    .bottom-bar,
+    .page-jump-popover {
+      display: none;
+    }
+
+    .page-jump-popover:focus {
+      outline: none;
+    }
+
+    .sheet-backdrop {
+      display: none;
+    }
+
+    .page-jump-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+
+    .page-jump-title {
+      color: var(--ink-faint);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .page-jump-total {
+      color: var(--ink-faint);
+      font-size: 0.75rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .jump-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .jump-step,
+    .jump-go {
+      height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--ink-soft);
+      font-size: 1.1rem;
+      font-weight: 500;
+      touch-action: manipulation;
+    }
+
+    .jump-step {
+      width: 48px;
+      flex: none;
+    }
+
+    .jump-step:active,
+    .jump-go:active {
+      background: var(--surface-tint);
+      color: var(--ink);
+    }
+
+    .jump-input {
+      width: 100%;
+      min-width: 0;
+      height: 48px;
+      flex: 1 1 auto;
+      padding: 0 8px;
+      border: 1px solid var(--line-strong);
+      border-radius: 12px;
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-variant-numeric: tabular-nums;
+      text-align: center;
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+
+    .jump-input:focus {
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .jump-go {
+      padding: 0 18px;
+      border-color: var(--ink);
+      background: var(--ink);
+      color: var(--bg);
+      font-size: 0.82rem;
+      letter-spacing: 0.02em;
+    }
+
+    .toolbar.is-hidden {
+      pointer-events: none;
+      transform: translateY(-100%);
+    }
+
     /* Welcome */
 
     .welcome {
       position: relative;
       display: flex;
       min-height: calc(100svh - 66px);
+      min-height: calc(100dvh - 66px);
       align-items: center;
       justify-content: center;
       overflow: hidden;
@@ -607,7 +808,7 @@
       margin: 0 0 25px;
       color: var(--ink-faint);
       font-family: var(--mono);
-      font-size: 0.6rem;
+      font-size: 0.75rem;
       letter-spacing: 0.16em;
       line-height: 1.4;
       text-transform: uppercase;
@@ -627,14 +828,14 @@
       font-family: var(--serif);
       font-size: clamp(3rem, 6.2vw, 5.5rem);
       font-weight: 400;
-      letter-spacing: -0.055em;
+      letter-spacing: -0.04em;
       line-height: 0.97;
     }
 
     .hero-title em {
       color: var(--accent);
-      font-style: italic;
-      font-weight: 400;
+      font-style: normal;
+      font-weight: 500;
     }
 
     .hero-sub {
@@ -646,8 +847,10 @@
     }
 
     .dropzone {
+      position: relative;
       display: flex;
       width: 100%;
+      overflow: hidden;
       align-items: center;
       gap: 14px;
       padding: 15px 17px;
@@ -656,6 +859,7 @@
       background: var(--surface-tint);
       color: var(--ink);
       text-align: left;
+      touch-action: manipulation;
       transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
     }
 
@@ -666,6 +870,11 @@
     }
 
     .dropzone:active { transform: scale(0.995); }
+
+    .dropzone:disabled {
+      cursor: progress;
+      opacity: 1;
+    }
 
     .drop-icon {
       display: grid;
@@ -683,18 +892,66 @@
 
     .drop-copy { min-width: 0; }
 
-    .drop-copy strong {
+    .drop-default { display: block; }
+
+    .drop-title {
       display: block;
       font-size: 0.84rem;
       font-weight: 500;
       letter-spacing: 0.005em;
     }
 
-    .drop-copy span {
+    .drop-sub {
       display: block;
       margin-top: 2px;
       color: var(--ink-faint);
-      font-size: 0.71rem;
+      font-size: 0.75rem;
+      line-height: 1.45;
+    }
+
+    .drop-title-mobile,
+    .drop-sub-mobile { display: none; }
+
+    .drop-working {
+      display: none;
+      color: var(--ink);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .drop-loader {
+      position: absolute;
+      right: 17px;
+      bottom: 9px;
+      left: 17px;
+      display: none;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--accent);
+      opacity: 0.3;
+      transform: scaleX(0.3);
+      transform-origin: 0 50%;
+    }
+
+    .dropzone.is-loading {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .dropzone.is-loading .drop-default { display: none; }
+    .dropzone.is-loading .drop-working { display: block; }
+    .dropzone.is-loading .drop-arrow { visibility: hidden; }
+    .dropzone.is-loading .drop-loader { display: block; animation: upload-pulse 1.2s ease-in-out infinite; }
+    .dropzone.is-loading .drop-icon { animation: upload-icon-pulse 1.2s ease-in-out infinite; }
+
+    @keyframes upload-pulse {
+      0%, 100% { opacity: 0.25; transform: scaleX(0.3); }
+      50% { opacity: 0.9; transform: scaleX(1); }
+    }
+
+    @keyframes upload-icon-pulse {
+      0%, 100% { opacity: 0.55; transform: scale(0.97); }
+      50% { opacity: 1; transform: scale(1); }
     }
 
     .drop-arrow {
@@ -716,7 +973,7 @@
       gap: 6px;
       margin: 14px 0 0;
       color: var(--ink-faint);
-      font-size: 0.65rem;
+      font-size: 0.75rem;
       letter-spacing: 0.015em;
     }
 
@@ -753,7 +1010,7 @@
       border-bottom: 1px solid var(--line);
       color: var(--ink-faint);
       font-family: var(--mono);
-      font-size: 0.57rem;
+      font-size: 0.75rem;
       letter-spacing: 0.14em;
       text-transform: uppercase;
     }
@@ -780,7 +1037,7 @@
       gap: 12px;
       color: var(--ink-faint);
       font-family: var(--mono);
-      font-size: 0.55rem;
+      font-size: 0.75rem;
       letter-spacing: 0.12em;
       text-transform: uppercase;
     }
@@ -793,13 +1050,17 @@
 
     /* Reader shell */
 
-    .reader { position: relative; }
+    .reader { position: relative; overscroll-behavior-y: contain; }
 
-    .view { min-height: 60svh; }
+    .view {
+      min-height: 60svh;
+      min-height: 60dvh;
+    }
 
     .canvas-view {
       padding: clamp(20px, 3.6vw, 46px) clamp(10px, 3vw, 40px) 120px;
       background: var(--bg-soft);
+      overscroll-behavior-y: contain;
     }
 
     .canvas-stack {
@@ -847,18 +1108,13 @@
       background: #f6f6f3;
       color: #a3a39c;
       font-family: var(--mono);
-      font-size: 0.58rem;
+      font-size: 0.75rem;
       letter-spacing: 0.16em;
       text-transform: uppercase;
     }
 
     .page-placeholder::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(100deg, transparent 26%, rgba(255, 255, 255, 0.74) 48%, transparent 70%);
-      transform: translateX(-110%);
-      animation: shimmer 1.8s ease-in-out infinite;
+      content: none;
     }
 
     @keyframes shimmer {
@@ -887,13 +1143,14 @@
       border-radius: 999px;
       background: #ffffff;
       color: #4c4c47;
-      font-size: 0.68rem;
+      font-size: 0.75rem;
     }
 
     /* Reading view */
 
     .glisse-view {
       padding: clamp(30px, 4.8vw, 66px) clamp(17px, 4vw, 48px) 140px;
+      overscroll-behavior-y: contain;
     }
 
     .reader-frame {
@@ -915,7 +1172,7 @@
       margin: 0 0 13px;
       color: var(--ink-faint);
       font-family: var(--mono);
-      font-size: 0.58rem;
+      font-size: 0.75rem;
       letter-spacing: 0.16em;
       text-transform: uppercase;
     }
@@ -938,7 +1195,7 @@
       gap: 6px 9px;
       margin: 16px 0 0;
       color: var(--ink-faint);
-      font-size: 0.66rem;
+      font-size: 0.75rem;
       letter-spacing: 0.02em;
     }
 
@@ -957,8 +1214,7 @@
       margin-bottom: clamp(30px, 4vw, 44px);
       padding: 15px 17px;
       border: 1px solid var(--line-strong);
-      border-left: 2px solid var(--accent);
-      border-radius: 0 8px 8px 0;
+      border-radius: 8px;
       background: var(--accent-soft);
       color: var(--ink-soft);
       font-family: var(--sans);
@@ -984,7 +1240,7 @@
       background: var(--surface-raised);
       color: var(--ink);
       font-family: var(--sans);
-      font-size: 0.67rem;
+      font-size: 0.75rem;
       white-space: nowrap;
       transition: border-color 150ms ease, background-color 150ms ease;
     }
@@ -1001,6 +1257,7 @@
 
     .page-section:last-child {
       min-height: calc(100svh - var(--toolbar-h) - 56px);
+      min-height: calc(100dvh - var(--toolbar-h) - 56px);
     }
 
     .page-rule {
@@ -1010,7 +1267,7 @@
       margin: clamp(40px, 6.5vw, 70px) 0 clamp(24px, 3.5vw, 34px);
       color: var(--ink-faint);
       font-family: var(--mono);
-      font-size: 0.56rem;
+      font-size: 0.75rem;
       letter-spacing: 0.16em;
       text-transform: uppercase;
     }
@@ -1029,7 +1286,7 @@
       border: 1px solid var(--line);
       border-radius: 3px;
       color: var(--ink-faint);
-      font-size: 0.5rem;
+      font-size: 0.75rem;
       letter-spacing: 0.08em;
     }
 
@@ -1121,7 +1378,7 @@
 
     /* Loading */
 
-    .loader {
+    .loader { overscroll-behavior-y: contain;
       position: fixed;
       z-index: 200;
       inset: 0;
@@ -1180,13 +1437,18 @@
     }
 
     .loader-track.is-indeterminate .loader-fill {
-      width: 34% !important;
-      animation: loader-sweep 1.25s ease-in-out infinite;
+      width: 100% !important;
+      animation: none;
+      opacity: 0.45;
     }
 
-    @keyframes loader-sweep {
-      0% { transform: translateX(-110%); }
-      100% { transform: translateX(330%); }
+    .loader-track.is-indeterminate {
+      animation: loader-pulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes loader-pulse {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 0.75; }
     }
 
     .loader-detail {
@@ -1194,7 +1456,7 @@
       margin: 0;
       color: var(--ink-faint);
       font-family: var(--mono);
-      font-size: 0.58rem;
+      font-size: 0.75rem;
       letter-spacing: 0.03em;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -1202,7 +1464,7 @@
 
     /* Dialogs and transient feedback */
 
-    .modal-backdrop {
+    .modal-backdrop { overscroll-behavior-y: contain;
       position: fixed;
       z-index: 250;
       inset: 0;
@@ -1216,6 +1478,10 @@
 
     .modal {
       width: min(100%, 410px);
+      max-height: calc(100vh - 40px);
+      max-height: calc(100dvh - 40px);
+      overflow-y: auto;
+      overscroll-behavior-y: contain;
       padding: 27px;
       border: 1px solid var(--line);
       border-radius: 16px;
@@ -1262,7 +1528,7 @@
     .modal-error {
       margin: 10px 0 0;
       color: var(--danger) !important;
-      font-size: 0.71rem !important;
+      font-size: 0.75rem !important;
     }
 
     .modal-actions {
@@ -1348,6 +1614,7 @@
       align-items: center;
       justify-content: center;
       gap: 12px;
+      padding: 2rem 1.5rem;
       border: 1.5px dashed var(--accent);
       border-radius: 20px;
       background: var(--surface-raised);
@@ -1422,7 +1689,7 @@
 
       .view-switch button {
         padding: 6px 10px;
-        font-size: 0.68rem;
+        font-size: 0.75rem;
       }
 
       .toolbar-actions { gap: 7px; }
@@ -1495,6 +1762,381 @@
       text-align: center;
     }
 
+    @media (max-width: 767px) {
+      body { -webkit-tap-highlight-color: transparent; }
+      body.sheet-open { overflow: hidden; }
+
+      button,
+      [role="button"] { touch-action: manipulation; }
+
+      .toolbar-inner { padding-bottom: 8px; }
+
+      .doc-meta { display: none; }
+
+      .view-switch button {
+        min-height: 44px;
+        padding: 0 14px;
+        touch-action: manipulation;
+      }
+
+      .open-button {
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        justify-content: center;
+      }
+
+      .open-button span { display: none; }
+
+      .icon-button,
+      .theme-choice,
+      .page-input,
+      .button-ghost,
+      .button-solid {
+        min-width: 44px;
+        min-height: 44px;
+      }
+
+      .theme-choice { width: 44px; height: 44px; }
+      .theme-choice::before { width: 16px; height: 16px; }
+
+      .modal input[type="password"] { height: 48px; }
+      .modal-actions { flex-wrap: wrap; }
+      .modal-actions > button { flex: 1 1 auto; }
+
+      .notice-banner button,
+      .page-error button,
+      .text-link {
+        min-height: 44px;
+        padding: 10px 14px;
+      }
+
+      /* Reading controls as a slide-up sheet */
+
+      .toolbar-controls {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 90;
+        display: flex;
+        width: 100%;
+        max-height: 88svh;
+        max-height: 88dvh;
+        margin: 0;
+        padding: 10px 20px calc(24px + env(safe-area-inset-bottom));
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        gap: 18px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
+        visibility: hidden;
+        background: var(--surface-raised);
+        border-top: 1px solid var(--line);
+        border-bottom: 0;
+        border-radius: 22px 22px 0 0;
+        box-shadow: 0 -26px 70px -30px rgba(0, 0, 0, 0.45);
+        transform: translateY(100%);
+        transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 220ms;
+      }
+
+      .toolbar-controls.is-open {
+        visibility: visible;
+        transform: translateY(0);
+        transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .sheet-head {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        display: flex;
+        margin: -10px -20px 0;
+        padding: 10px 20px 13px;
+        flex-direction: column;
+        gap: 14px;
+        background: var(--surface-raised);
+      }
+
+      .sheet-handle {
+        width: 100%;
+        height: auto;
+        min-height: 24px;
+        display: grid;
+        place-items: center;
+        background: transparent;
+        cursor: grab;
+        touch-action: none;
+      }
+
+      .sheet-handle::before {
+        content: "";
+        width: 44px;
+        height: 5px;
+        border-radius: 999px;
+        background: var(--line-strong);
+      }
+
+      .sheet-head-row { padding: 0 2px; }
+
+      .sheet-head.is-dragging,
+      .sheet-head.is-dragging .sheet-handle { cursor: grabbing; }
+
+      .theme-switch {
+        align-self: center;
+        padding: 6px;
+        gap: 8px;
+      }
+
+      .toolbar-controls .control {
+        display: flex;
+        width: 100%;
+        flex: 0 0 auto;
+        gap: 4px;
+      }
+
+      .control-label { font-size: 0.68rem; }
+      .control-label output { font-size: 0.72rem; }
+
+      .toolbar-controls .nav-cluster { display: none; }
+
+      .slider-row { gap: 10px; }
+
+      .step-button {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        font-size: 1.25rem;
+      }
+
+      .control select {
+        height: 48px;
+        padding: 0 12px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+      }
+
+      .sheet-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 85;
+        display: block;
+        background: rgba(10, 13, 11, 0.42);
+        opacity: 0;
+        pointer-events: none;
+        touch-action: none;
+        overscroll-behavior: contain;
+        transition: opacity 200ms ease;
+      }
+
+      .sheet-backdrop.is-open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .sheet-close:active { transform: scale(0.94); }
+
+      /* Floating thumb-zone navigation */
+
+      .bottom-bar {
+        position: fixed;
+        right: calc(12px + env(safe-area-inset-right));
+        bottom: calc(10px + env(safe-area-inset-bottom));
+        left: calc(12px + env(safe-area-inset-left));
+        z-index: 70;
+        display: flex;
+        min-height: 60px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 4px;
+        padding: 6px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--surface-raised) 93%, transparent);
+        -webkit-backdrop-filter: blur(16px) saturate(1.1);
+        backdrop-filter: blur(16px) saturate(1.1);
+        box-shadow: 0 16px 38px -18px rgba(0, 0, 0, 0.4);
+        overscroll-behavior-y: contain;
+      }
+
+      .bottom-bar-button,
+      .bottom-bar-pill {
+        display: grid;
+        min-width: 48px;
+        min-height: 48px;
+        padding: 0;
+        place-items: center;
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        color: var(--ink-soft);
+        font: inherit;
+        touch-action: manipulation;
+      }
+
+      .bottom-bar-button:active,
+      .bottom-bar-pill:active { background: var(--surface-tint); }
+
+      .bottom-bar-button:disabled { opacity: 0.3; }
+
+      .bottom-bar-button svg { width: 21px; height: 21px; }
+
+      .bottom-bar-pill {
+        flex: 1 1 auto;
+        padding: 0 14px;
+        background: var(--surface-tint);
+        color: var(--ink);
+        font-size: 0.82rem;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.02em;
+      }
+
+      .bottom-bar-settings {
+        gap: 5px;
+        padding: 0 12px;
+        font-size: 0.78rem;
+        font-weight: 600;
+      }
+
+      .bottom-bar-settings svg { width: 18px; height: 18px; }
+
+      .bottom-bar-settings span { line-height: 1; }
+
+      .page-jump-popover {
+        position: fixed;
+        right: calc(12px + env(safe-area-inset-right));
+        bottom: calc(84px + env(safe-area-inset-bottom) + var(--keyboard-inset, 0px));
+        left: calc(12px + env(safe-area-inset-left));
+        z-index: 95;
+        display: block;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: var(--surface-raised);
+        box-shadow: 0 26px 64px -30px rgba(0, 0, 0, 0.5);
+        overscroll-behavior-y: contain;
+        animation: jump-in 200ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      @keyframes jump-in {
+        from { opacity: 0; transform: translateY(10px) scale(0.985); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      .toast {
+        bottom: calc(88px + env(safe-area-inset-bottom));
+      }
+
+      /* Mobile-first document intake */
+
+      .dropzone {
+        min-height: 132px;
+        gap: 16px;
+        padding: 20px 18px;
+        border: 1px solid var(--line-strong);
+        border-radius: 18px;
+        background: var(--surface-raised);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .dropzone:active {
+        border-color: var(--accent);
+        transform: scale(0.985);
+      }
+
+      .drop-icon {
+        width: 56px;
+        height: 56px;
+        border: 0;
+        background: var(--accent-soft);
+      }
+
+      .drop-icon svg { width: 24px; height: 24px; }
+
+      .drop-title {
+        font-size: 1.02rem;
+        font-weight: 600;
+      }
+
+      .drop-sub { margin-top: 5px; font-size: 0.8rem; }
+
+      .drop-title-wide,
+      .drop-sub-wide { display: none; }
+
+      .drop-title-mobile,
+      .drop-sub-mobile { display: block; }
+
+      .drop-arrow svg { width: 20px; height: 20px; }
+
+      .drop-working { font-size: 1rem; }
+
+      input[type="range"] {
+        height: 48px;
+        touch-action: manipulation;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        width: 28px;
+        height: 28px;
+        margin-top: -13px;
+      }
+
+      input[type="range"]::-moz-range-thumb {
+        width: 28px;
+        height: 28px;
+      }
+
+      input[type="range"]:active::-webkit-slider-thumb { transform: scale(1.12); }
+      input[type="range"]:active::-moz-range-thumb { transform: scale(1.12); }
+
+      .welcome {
+        min-height: auto;
+        padding: 16px 16px 40px;
+      }
+
+      .welcome-copy { padding: 28px 20px 24px; }
+
+      .hero-title { font-size: clamp(2.75rem, 13vw, 4rem); }
+
+      .hero-sub { margin: 19px 0 25px; font-size: 0.9rem; }
+
+      .canvas-view {
+        padding: 14px 10px calc(106px + env(safe-area-inset-bottom));
+      }
+
+      .glisse-view {
+        padding: 26px 20px calc(124px + env(safe-area-inset-bottom));
+      }
+
+      .reader-frame {
+        width: 100%;
+        max-width: var(--reader-measure);
+        padding: 0;
+      }
+
+      .reading-title { font-size: clamp(1.7rem, 8vw, 2.35rem); }
+
+      .page-section:last-child {
+        min-height: calc(100svh - var(--toolbar-h) - 132px);
+        min-height: calc(100dvh - var(--toolbar-h) - 132px);
+      }
+
+      .page-shell,
+      .page-section { scroll-margin-top: calc(var(--toolbar-h) + 16px); }
+
+      .noscript-note { bottom: calc(88px + env(safe-area-inset-bottom)); }
+    }
+
+    @media (max-width: 380px) {
+      .glisse-view {
+        padding-right: 16px;
+        padding-left: 16px;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,
       *::before,
@@ -1520,7 +2162,8 @@
   </div>
 
   <header class="toolbar" id="toolbar">
-    <div class="toolbar-inner">
+    <div class="toolbar-chrome">
+      <div class="toolbar-inner">
       <div class="toolbar-top">
         <div class="brand" aria-label="Glisse">glisse<span class="brand-dot" aria-hidden="true"></span></div>
 
@@ -1535,11 +2178,6 @@
         </div>
 
         <div class="toolbar-actions">
-          <div class="theme-switch" role="group" aria-label="Color theme">
-            <button type="button" class="theme-choice" data-set-theme="light" aria-label="Light theme" aria-pressed="true" title="Light"></button>
-            <button type="button" class="theme-choice" data-set-theme="dark" aria-label="Dark theme" aria-pressed="false" title="Dark"></button>
-            <button type="button" class="theme-choice" data-set-theme="sepia" aria-label="Warm paper theme" aria-pressed="false" title="Warm paper"></button>
-          </div>
           <button type="button" class="open-button" id="openButton" aria-label="Open PDF document">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5"></path>
@@ -1549,14 +2187,36 @@
           </button>
         </div>
       </div>
+      </div>
+    </div>
 
-      <div class="toolbar-controls" id="toolbarControls" hidden>
+    <div class="toolbar-controls" id="toolbarControls" hidden aria-labelledby="sheetTitle">
+      <div class="sheet-head" id="sheetHead">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <div class="sheet-head-row">
+          <h2 class="sheet-title" id="sheetTitle">Reading controls</h2>
+          <button type="button" class="sheet-close" id="sheetClose" aria-label="Close reading controls">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+              <path d="M6 6l12 12M18 6 6 18"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="theme-switch" role="group" aria-label="Color theme">
+          <button type="button" class="theme-choice" data-set-theme="light" aria-label="Light theme" aria-pressed="true" title="Light"></button>
+          <button type="button" class="theme-choice" data-set-theme="dark" aria-label="Dark theme" aria-pressed="false" title="Dark"></button>
+          <button type="button" class="theme-choice" data-set-theme="sepia" aria-label="Warm paper theme" aria-pressed="false" title="Warm paper"></button>
+        </div>
         <div class="control control--fixation">
           <div class="control-label">
             <label for="fixationRange" title="Share of each word set in bold to anchor the eye">Fixation</label>
             <output id="fixationValue" for="fixationRange">35%</output>
           </div>
-          <input type="range" id="fixationRange" min="25" max="60" step="1" value="35" aria-label="Fixation intensity">
+          <div class="slider-row">
+            <button type="button" class="step-button" data-target="fixationRange" data-delta="-1" aria-label="Decrease fixation">−</button>
+            <input type="range" id="fixationRange" min="25" max="60" step="1" value="35" aria-label="Fixation intensity">
+            <button type="button" class="step-button" data-target="fixationRange" data-delta="1" aria-label="Increase fixation">+</button>
+          </div>
         </div>
 
         <div class="control control--size">
@@ -1564,7 +2224,11 @@
             <label for="sizeRange">Text size</label>
             <output id="sizeValue" for="sizeRange">19 px</output>
           </div>
-          <input type="range" id="sizeRange" min="14" max="26" step="1" value="19" aria-label="Reader font size">
+          <div class="slider-row">
+            <button type="button" class="step-button" data-target="sizeRange" data-delta="-1" aria-label="Decrease text size">−</button>
+            <input type="range" id="sizeRange" min="14" max="26" step="1" value="19" aria-label="Reader font size">
+            <button type="button" class="step-button" data-target="sizeRange" data-delta="1" aria-label="Increase text size">+</button>
+          </div>
         </div>
 
         <div class="control control--leading">
@@ -1572,7 +2236,11 @@
             <label for="leadingRange">Leading</label>
             <output id="leadingValue" for="leadingRange">1.80</output>
           </div>
-          <input type="range" id="leadingRange" min="1.5" max="2.2" step="0.05" value="1.8" aria-label="Reader line height">
+          <div class="slider-row">
+            <button type="button" class="step-button" data-target="leadingRange" data-delta="-1" aria-label="Decrease leading">−</button>
+            <input type="range" id="leadingRange" min="1.5" max="2.2" step="0.05" value="1.8" aria-label="Reader line height">
+            <button type="button" class="step-button" data-target="leadingRange" data-delta="1" aria-label="Increase leading">+</button>
+          </div>
         </div>
 
         <div class="control control--measure">
@@ -1580,7 +2248,11 @@
             <label for="measureRange">Measure</label>
             <output id="measureValue" for="measureRange">68 ch</output>
           </div>
-          <input type="range" id="measureRange" min="55" max="80" step="1" value="68" aria-label="Reader measure">
+          <div class="slider-row">
+            <button type="button" class="step-button" data-target="measureRange" data-delta="-1" aria-label="Decrease measure">−</button>
+            <input type="range" id="measureRange" min="55" max="80" step="1" value="68" aria-label="Reader measure">
+            <button type="button" class="step-button" data-target="measureRange" data-delta="1" aria-label="Increase measure">+</button>
+          </div>
         </div>
 
         <div class="control control--type">
@@ -1620,21 +2292,49 @@
           </button>
         </div>
       </div>
-    </div>
     <div class="progress-rail" id="progressRail" role="progressbar" aria-label="Reading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden>
       <div class="progress-fill" id="progressFill"></div>
     </div>
   </header>
 
-  <main>
+  <nav class="bottom-bar" id="bottomBar" hidden aria-label="Page navigation">
+    <button type="button" class="bottom-bar-button" id="bottomPrev" aria-label="Previous page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+    </button>
+    <button type="button" class="bottom-bar-pill" id="bottomPage" aria-label="Page 1 of 1. Tap to jump" aria-haspopup="dialog" aria-controls="pageJumpPopover" aria-expanded="false">1 / 1</button>
+    <button type="button" class="bottom-bar-button" id="bottomNext" aria-label="Next page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
+    </button>
+    <button type="button" class="bottom-bar-button bottom-bar-settings" id="bottomSettings" aria-label="Reading settings" aria-controls="toolbarControls" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"></path><circle cx="15" cy="7" r="2"></circle><circle cx="9" cy="17" r="2"></circle></svg>
+      <span>Aa</span>
+    </button>
+  </nav>
+
+  <div class="page-jump-popover" id="pageJumpPopover" hidden role="dialog" aria-label="Jump to page" tabindex="-1">
+    <div class="page-jump-head">
+      <span class="page-jump-title">Go to page</span>
+      <span class="page-jump-total">of <span id="jumpTotal">1</span></span>
+    </div>
+    <div class="jump-row">
+      <button type="button" class="jump-step" id="jumpPrev" aria-label="Previous page">−</button>
+      <label class="sr-only" for="jumpInput">Page number</label>
+      <input type="text" class="jump-input" id="jumpInput" inputmode="numeric" enterkeyhint="go" autocomplete="off" spellcheck="false" value="1" maxlength="7" aria-label="Page number">
+      <button type="button" class="jump-step" id="jumpNext" aria-label="Next page">+</button>
+      <button type="button" class="jump-go" id="jumpGo">Go</button>
+    </div>
+  </div>
+
+  <div class="sheet-backdrop" id="sheetBackdrop" aria-hidden="true"></div>
+
+  <main id="app">
     <section class="welcome" id="welcome">
       <div class="welcome-card">
         <div class="welcome-copy">
-          <p class="kicker"><span class="kicker-dot" aria-hidden="true"></span> A private, on-device reader</p>
           <h1 class="hero-title">Let your eyes<br><em>glide.</em></h1>
           <p class="hero-sub">A quiet space for long documents. Glisse sets a bold anchor at the start of every word, giving your eye a place to land and a rhythm to follow.</p>
 
-          <button type="button" class="dropzone" id="dropzone" aria-label="Drop or choose a PDF document">
+          <button type="button" class="dropzone" id="dropzone" aria-label="Choose a PDF document">
             <span class="drop-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M13.5 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5L13.5 3Z"></path>
@@ -1643,14 +2343,24 @@
               </svg>
             </span>
             <span class="drop-copy">
-              <strong>Drop a PDF here</strong>
-              <span>or click to choose a file</span>
+              <span class="drop-default">
+                <strong class="drop-title">
+                  <span class="drop-title-wide">Drop a PDF here</span>
+                  <span class="drop-title-mobile">Choose a PDF</span>
+                </strong>
+                <span class="drop-sub">
+                  <span class="drop-sub-wide">or click to choose a file</span>
+                  <span class="drop-sub-mobile">PDF files · any size · stays on this device</span>
+                </span>
+              </span>
+              <span class="drop-working" role="status">Opening document…</span>
             </span>
             <span class="drop-arrow" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 12h13m-5-5 5 5-5 5"></path>
               </svg>
             </span>
+            <span class="drop-loader" aria-hidden="true"></span>
           </button>
           <input type="file" id="fileInput" accept="application/pdf,.pdf" hidden>
           <p class="fineprint">
@@ -1685,7 +2395,6 @@
       <section class="view glisse-view" id="glisseView" aria-label="Glisse reading view">
         <div class="reader-frame">
           <header class="reading-head">
-            <p class="reading-kicker">Now reading</p>
             <h1 class="reading-title" id="readingTitle"></h1>
             <div class="reading-meta">
               <span id="readingPages"></span>
@@ -1723,7 +2432,6 @@
 
   <div class="modal-backdrop" id="passwordBackdrop" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="passwordTitle" aria-describedby="passwordHint">
-      <p class="kicker"><span class="kicker-dot" aria-hidden="true"></span> Protected document</p>
       <h2 id="passwordTitle">Enter password</h2>
       <p id="passwordHint">This document is encrypted. Its password is used only in this tab.</p>
       <form id="passwordForm">
@@ -1751,8 +2459,24 @@
 
       const $ = (selector, root) => (root || document).querySelector(selector);
       const $$ = (selector, root) => Array.from((root || document).querySelectorAll(selector));
+      const MOBILE_QUERY = window.matchMedia("(max-width: 767px)");
+      const isMobile = () => MOBILE_QUERY.matches;
 
       const els = {
+        bottomBar: $("#bottomBar"),
+        bottomPrev: $("#bottomPrev"),
+        bottomPage: $("#bottomPage"),
+        bottomNext: $("#bottomNext"),
+        bottomSettings: $("#bottomSettings"),
+        pageJumpPopover: $("#pageJumpPopover"),
+        jumpInput: $("#jumpInput"),
+        jumpTotal: $("#jumpTotal"),
+        jumpPrev: $("#jumpPrev"),
+        jumpNext: $("#jumpNext"),
+        jumpGo: $("#jumpGo"),
+        sheetBackdrop: $("#sheetBackdrop"),
+        sheetHead: $("#sheetHead"),
+        sheetClose: $("#sheetClose"),
         toolbar: $("#toolbar"),
         docMeta: $("#docMeta"),
         docName: $("#docName"),
@@ -1843,7 +2567,14 @@
         toastTimer: 0,
         dragDepth: 0,
         passwordRequest: null,
-        lastFocus: null
+        lastFocus: null,
+        sheetOpen: false,
+        sheetDrag: null,
+        sheetCloseTimer: 0,
+        headerHidden: false,
+        headerHoldUntil: 0,
+        scrollDownAccum: 0,
+        lastScrollY: window.scrollY || 0
       };
 
       function clamp(value, min, max) {
@@ -1948,6 +2679,289 @@
         els.sampleRate.textContent = prefs.intensity + "%";
         els.readingFixation.textContent = prefs.intensity + "%";
         els.sampleText.innerHTML = WordEngine.format(SAMPLE_TEXT, prefs.intensity / 100);
+      }
+
+      /* Mobile chrome, thumb-zone controls, and sheet motion */
+
+      function placeControls() {
+        if (!els.toolbarControls) return;
+        if (isMobile()) {
+          if (els.toolbarControls.parentElement !== document.body) {
+            document.body.insertBefore(els.toolbarControls, els.toolbar.nextSibling);
+          }
+        } else if (els.toolbarControls.parentElement !== els.toolbar) {
+          els.toolbar.insertBefore(els.toolbarControls, els.progressRail);
+        }
+      }
+
+      function setHeaderHidden(hidden) {
+        const next = isMobile() ? Boolean(hidden) : false;
+        if (state.headerHidden === next) return;
+        state.headerHidden = next;
+        els.toolbar.classList.toggle("is-hidden", next);
+      }
+
+      function revealHeader() {
+        state.scrollDownAccum = 0;
+        setHeaderHidden(false);
+      }
+
+      function handleChromeScroll() {
+        const y = Math.max(0, window.scrollY || 0);
+        const delta = y - state.lastScrollY;
+        state.lastScrollY = y;
+
+        if (delta < 0) state.scrollDownAccum = 0;
+        else if (delta > 0) state.scrollDownAccum += delta;
+
+        if (!els.pageJumpPopover.hidden && Math.abs(delta) > 2) closePageJump(false);
+
+        if (!state.pdf || !isMobile() || state.sheetOpen) {
+          setHeaderHidden(false);
+          return;
+        }
+
+        if (y < 80) {
+          state.scrollDownAccum = 0;
+          setHeaderHidden(false);
+          return;
+        }
+
+        if (performance.now() < state.headerHoldUntil) {
+          setHeaderHidden(false);
+          return;
+        }
+
+        if (state.headerHidden) {
+          if (delta < -1) setHeaderHidden(false);
+          return;
+        }
+
+        if (state.view === "glisse" && state.scrollDownAccum > 20) {
+          setHeaderHidden(true);
+        } else if (delta < -1) {
+          setHeaderHidden(false);
+        }
+      }
+
+      function setUploadState(loading, fileName) {
+        const active = Boolean(loading);
+        els.dropzone.classList.toggle("is-loading", active);
+        els.dropzone.disabled = active;
+        if (active) {
+          els.dropzone.setAttribute("aria-busy", "true");
+          els.dropzone.setAttribute("aria-label", fileName ? "Opening " + fileName : "Opening document");
+        } else {
+          els.dropzone.removeAttribute("aria-busy");
+          els.dropzone.setAttribute("aria-label", "Choose a PDF document");
+        }
+      }
+
+      function updateSheetChrome(open) {
+        if (open && isMobile()) {
+          els.toolbarControls.setAttribute("role", "dialog");
+          els.toolbarControls.setAttribute("aria-modal", "true");
+        } else {
+          els.toolbarControls.removeAttribute("role");
+          els.toolbarControls.removeAttribute("aria-modal");
+        }
+
+        els.settingsToggle.setAttribute("aria-expanded", String(open));
+        els.settingsToggle.setAttribute("aria-label", open ? "Hide reading controls" : "Show reading controls");
+        els.settingsLabel.textContent = open ? "Hide controls" : "Reading controls";
+        els.bottomSettings.setAttribute("aria-expanded", String(open));
+      }
+
+      function openSheet() {
+        if (els.toolbarControls.hidden) return;
+
+        clearTimeout(state.sheetCloseTimer);
+        state.sheetCloseTimer = 0;
+        els.toolbarControls.style.transition = "";
+        els.toolbarControls.style.transform = "";
+        els.sheetBackdrop.style.opacity = "";
+        state.sheetOpen = true;
+        els.toolbarControls.classList.add("is-open");
+        if (isMobile()) {
+          els.sheetBackdrop.classList.add("is-open");
+          els.sheetBackdrop.setAttribute("aria-hidden", "false");
+          document.body.classList.add("sheet-open");
+        }
+        revealHeader();
+        closePageJump(false);
+        updateSheetChrome(true);
+
+        if (isMobile()) {
+          requestAnimationFrame(() => {
+            if (!state.sheetOpen) return;
+            try { els.sheetClose.focus({ preventScroll: true }); } catch (error) { els.sheetClose.focus(); }
+          });
+        }
+
+        requestAnimationFrame(updateToolbarHeight);
+      }
+
+      function closeSheet(options) {
+        const settings = Object.assign({ restoreFocus: false, animate: true }, options || {});
+        const wasOpen = state.sheetOpen || els.toolbarControls.classList.contains("is-open");
+
+        state.sheetOpen = false;
+        state.sheetDrag = null;
+        els.sheetHead.classList.remove("is-dragging");
+        clearTimeout(state.sheetCloseTimer);
+        state.sheetCloseTimer = 0;
+
+        if (isMobile() && settings.animate && wasOpen && !els.toolbarControls.hidden) {
+          els.toolbarControls.style.transition = "transform 200ms cubic-bezier(0.16, 1, 0.3, 1)";
+          els.toolbarControls.style.transform = "translateY(100%)";
+          els.sheetBackdrop.style.opacity = "0";
+          state.sheetCloseTimer = window.setTimeout(() => {
+            els.toolbarControls.style.transition = "";
+            els.toolbarControls.style.transform = "";
+            els.sheetBackdrop.style.opacity = "";
+            els.sheetBackdrop.classList.remove("is-open");
+            els.sheetBackdrop.setAttribute("aria-hidden", "true");
+          }, 210);
+        } else {
+          els.toolbarControls.style.transition = "";
+          els.toolbarControls.style.transform = "";
+          els.sheetBackdrop.style.opacity = "";
+          els.sheetBackdrop.classList.remove("is-open");
+          els.sheetBackdrop.setAttribute("aria-hidden", "true");
+        }
+
+        els.toolbarControls.classList.remove("is-open");
+        document.body.classList.remove("sheet-open");
+        updateSheetChrome(false);
+
+        if (settings.restoreFocus) {
+          const target = isMobile() ? els.bottomSettings : els.settingsToggle;
+          if (target && !target.hidden) {
+            try { target.focus({ preventScroll: true }); } catch (error) {}
+          }
+        }
+
+        requestAnimationFrame(updateToolbarHeight);
+      }
+
+      function toggleSheet() {
+        if (state.sheetOpen) closeSheet({ restoreFocus: true });
+        else openSheet();
+      }
+
+      function beginSheetDrag(event) {
+        if (!isMobile() || !state.sheetOpen) return;
+        if (event.target.closest("button, input, select, a")) return;
+        const touch = event.touches && event.touches[0];
+        if (!touch) return;
+        state.sheetDrag = {
+          startY: touch.clientY,
+          time: performance.now(),
+          delta: 0,
+          active: false
+        };
+      }
+
+      function moveSheetDrag(event) {
+        const drag = state.sheetDrag;
+        if (!drag) return;
+        const touch = event.touches && event.touches[0];
+        if (!touch) return;
+
+        drag.delta = Math.max(0, touch.clientY - drag.startY);
+        if (!drag.active && drag.delta < 5) return;
+
+        drag.active = true;
+        if (event.cancelable) event.preventDefault();
+
+        els.toolbarControls.style.transition = "none";
+        els.toolbarControls.style.transform = "translateY(" + drag.delta + "px)";
+        els.sheetHead.classList.add("is-dragging");
+
+        const height = Math.max(1, els.toolbarControls.offsetHeight);
+        els.sheetBackdrop.style.opacity = String(clamp(1 - (drag.delta / height) * 0.9, 0.12, 1));
+      }
+
+      function endSheetDrag() {
+        const drag = state.sheetDrag;
+        state.sheetDrag = null;
+        els.sheetHead.classList.remove("is-dragging");
+        if (!drag || !drag.active) return;
+
+        const height = Math.max(1, els.toolbarControls.offsetHeight);
+        const flick = performance.now() - drag.time < 320 && drag.delta > 32;
+        if (flick || drag.delta > Math.min(150, height * 0.24)) {
+          closeSheet({ restoreFocus: true });
+          return;
+        }
+
+        els.toolbarControls.style.transition = "transform 200ms cubic-bezier(0.16, 1, 0.3, 1)";
+        els.toolbarControls.style.transform = "translateY(0)";
+        els.sheetBackdrop.style.opacity = "1";
+        window.setTimeout(() => {
+          if (!state.sheetOpen) return;
+          els.toolbarControls.style.transition = "";
+          els.toolbarControls.style.transform = "";
+          els.sheetBackdrop.style.opacity = "";
+        }, 210);
+      }
+
+      function openPageJump() {
+        if (!isMobile() || !state.pdf || !state.numPages) return;
+        if (state.sheetOpen) closeSheet({ animate: false });
+
+        els.jumpInput.value = String(state.currentPage);
+        els.jumpTotal.textContent = String(state.numPages);
+        els.pageJumpPopover.hidden = false;
+        els.bottomPage.setAttribute("aria-expanded", "true");
+
+        requestAnimationFrame(() => {
+          try { els.pageJumpPopover.focus({ preventScroll: true }); } catch (error) { els.pageJumpPopover.focus(); }
+        });
+      }
+
+      function closePageJump(restoreFocus) {
+        if (els.pageJumpPopover.hidden) return;
+        els.pageJumpPopover.hidden = true;
+        els.bottomPage.setAttribute("aria-expanded", "false");
+        if (restoreFocus !== false) {
+          try { els.bottomPage.focus({ preventScroll: true }); } catch (error) {}
+        }
+      }
+
+      function togglePageJump() {
+        if (els.pageJumpPopover.hidden) openPageJump();
+        else closePageJump(true);
+      }
+
+      function stepPageJump(delta) {
+        if (!state.numPages) return;
+        const digits = els.jumpInput.value.replace(/[^\d]/g, "");
+        const current = Number(digits) || state.currentPage;
+        els.jumpInput.value = String(clamp(current + delta, 1, state.numPages));
+      }
+
+      function commitPageJump() {
+        if (!state.numPages) return;
+        const digits = els.jumpInput.value.replace(/[^\d]/g, "");
+        const target = clamp(Number(digits) || state.currentPage, 1, state.numPages);
+        els.jumpInput.value = String(target);
+        closePageJump(false);
+        scrollToPage(target, "auto");
+      }
+
+      function stepRange(button) {
+        const target = document.getElementById(button.dataset.target);
+        if (!target) return;
+
+        const step = Number(target.step) || 1;
+        const precision = (String(step).split(".")[1] || "").length;
+        const delta = Number(button.dataset.delta) || 0;
+        const value = Number((Number(target.value) + delta * step).toFixed(precision));
+        const next = clamp(value, Number(target.min), Number(target.max));
+
+        target.value = String(next);
+        target.dispatchEvent(new Event("input", { bubbles: true }));
       }
 
       /* Saccadic fixation formatter: independent, local, and deterministic. */
@@ -2239,13 +3253,18 @@
 
         const token = ++state.openToken;
         els.welcomeError.hidden = true;
+        if (state.sheetOpen) closeSheet({ animate: false });
+        closePageJump(false);
+        revealHeader();
 
         if (!els.passwordBackdrop.hidden) {
           const request = closePasswordDialog();
           if (request) request.reject(new Error("Superseded"));
         }
 
-        showLoader("Opening document", file.name + " · stays on this device");
+        setUploadState(true, file.name);
+        els.fileInput.value = "";
+        showLoader("Opening document", file.name + " · " + formatBytes(file.size) + " · stays on this device");
         setLoaderProgress(null);
 
         let task = null;
@@ -2309,7 +3328,11 @@
             showToast(message);
           }
         } finally {
-          if (token === state.openToken) hideLoader();
+          if (token === state.openToken) {
+            hideLoader();
+            setUploadState(false);
+            els.fileInput.value = "";
+          }
         }
       }
 
@@ -2341,10 +3364,11 @@
         document.body.classList.add("has-doc");
         els.welcome.hidden = true;
         els.reader.hidden = false;
-        els.docMeta.hidden = false;
+        els.bottomBar.hidden = false;
         els.viewSwitch.hidden = false;
         els.toolbarControls.hidden = false;
         els.progressRail.hidden = false;
+        els.docMeta.hidden = false;
         els.docName.textContent = file.name;
         els.docName.title = file.name;
         els.docStat.textContent = pluralPage(pdf.numPages) + " · " + formatBytes(file.size);
@@ -2766,10 +3790,18 @@
         }
         els.prevPage.disabled = nextPage <= 1;
         els.nextPage.disabled = nextPage >= state.numPages;
+        els.bottomPrev.disabled = nextPage <= 1;
+        els.bottomNext.disabled = nextPage >= state.numPages;
+        els.bottomPage.textContent = nextPage + " / " + state.numPages;
+        els.bottomPage.setAttribute("aria-label", "Page " + nextPage + " of " + state.numPages + ". Tap to jump");
+        els.jumpTotal.textContent = String(state.numPages);
       }
 
       function scrollToPage(pageNumber, behavior) {
         if (!state.numPages) return;
+        state.headerHoldUntil = performance.now() + 900;
+        revealHeader();
+        closePageJump(false);
         const targetPage = clamp(Math.round(Number(pageNumber) || 1), 1, state.numPages);
         const targets = state.view === "canvas"
           ? state.canvasEntries.map((entry) => entry.el)
@@ -3030,6 +4062,7 @@
       }
 
       function handleFileSelection(file) {
+        els.fileInput.value = "";
         if (!file) return;
         showDropOverlay(false);
         openDocument(file);
@@ -3096,13 +4129,36 @@
         els.prevPage.addEventListener("click", () => scrollToPage(state.currentPage - 1, "smooth"));
         els.nextPage.addEventListener("click", () => scrollToPage(state.currentPage + 1, "smooth"));
 
-        els.settingsToggle.addEventListener("click", () => {
-          const open = !els.toolbarControls.classList.contains("is-open");
-          els.toolbarControls.classList.toggle("is-open", open);
-          els.settingsToggle.setAttribute("aria-expanded", String(open));
-          els.settingsToggle.setAttribute("aria-label", open ? "Hide reading controls" : "Show reading controls");
-          els.settingsLabel.textContent = open ? "Hide controls" : "Reading controls";
-          requestAnimationFrame(updateToolbarHeight);
+        els.bottomPrev.addEventListener("click", () => scrollToPage(state.currentPage - 1, "smooth"));
+        els.bottomNext.addEventListener("click", () => scrollToPage(state.currentPage + 1, "smooth"));
+        els.bottomPage.addEventListener("click", togglePageJump);
+        els.bottomSettings.addEventListener("click", toggleSheet);
+
+        $$(".step-button").forEach((button) => {
+          button.addEventListener("click", () => stepRange(button));
+        });
+
+        els.settingsToggle.addEventListener("click", toggleSheet);
+        els.sheetClose.addEventListener("click", () => closeSheet({ restoreFocus: true }));
+        els.sheetBackdrop.addEventListener("click", () => closeSheet({ restoreFocus: true }));
+
+        els.sheetHead.addEventListener("touchstart", beginSheetDrag, { passive: true });
+        els.sheetHead.addEventListener("touchmove", moveSheetDrag, { passive: false });
+        els.sheetHead.addEventListener("touchend", endSheetDrag);
+        els.sheetHead.addEventListener("touchcancel", endSheetDrag);
+
+        els.jumpPrev.addEventListener("click", () => stepPageJump(-1));
+        els.jumpNext.addEventListener("click", () => stepPageJump(1));
+        els.jumpGo.addEventListener("click", commitPageJump);
+
+        els.jumpInput.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            commitPageJump();
+          } else if (event.key === "Escape") {
+            event.preventDefault();
+            closePageJump(true);
+          }
         });
 
         els.pageInput.addEventListener("keydown", (event) => {
@@ -3150,11 +4206,26 @@
           if (event.target === els.passwordBackdrop) cancelPassword();
         });
 
-        window.addEventListener("scroll", requestScrollMeasure, { passive: true });
-
-        window.addEventListener("pointerdown", () => {
-          state.pendingJump = null;
+        window.addEventListener("scroll", () => {
+          handleChromeScroll();
+          requestScrollMeasure();
         }, { passive: true });
+
+        window.addEventListener("pointerdown", (event) => {
+          document.body.classList.add("is-pointer");
+          state.pendingJump = null;
+          if (els.pageJumpPopover.hidden) return;
+          if (event.target.closest("#pageJumpPopover") || event.target.closest("#bottomPage")) return;
+          closePageJump(false);
+        }, { passive: true });
+
+        els.reader.addEventListener("pointerup", (event) => {
+          if (!isMobile() || !state.headerHidden) return;
+          if (event.target.closest("button, a, input, select, textarea, label, [role='button']")) return;
+          revealHeader();
+        }, { passive: true });
+
+        els.toolbar.addEventListener("focusin", revealHeader);
 
         window.addEventListener("wheel", () => {
           state.pendingJump = null;
@@ -3170,12 +4241,39 @@
           }
         });
 
+        const handleViewportChange = () => {
+          if (state.sheetOpen) closeSheet({ animate: false });
+          closePageJump(false);
+          if (!isMobile()) document.body.classList.remove("sheet-open");
+          placeControls();
+          setHeaderHidden(false);
+          updateToolbarHeight();
+        };
+
+        if (MOBILE_QUERY.addEventListener) {
+          MOBILE_QUERY.addEventListener("change", handleViewportChange);
+        } else if (MOBILE_QUERY.addListener) {
+          MOBILE_QUERY.addListener(handleViewportChange);
+        }
+
+        if (window.visualViewport) {
+          const syncKeyboardInset = () => {
+            const viewport = window.visualViewport;
+            const inset = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
+            document.documentElement.style.setProperty("--keyboard-inset", Math.round(inset) + "px");
+          };
+          window.visualViewport.addEventListener("resize", syncKeyboardInset);
+          window.visualViewport.addEventListener("scroll", syncKeyboardInset);
+          syncKeyboardInset();
+        }
+
         let resizeTimer = 0;
         window.addEventListener("resize", () => {
           updateToolbarHeight();
           requestScrollMeasure();
           clearTimeout(resizeTimer);
           resizeTimer = setTimeout(() => {
+            handleViewportChange();
             if (!state.pdf) return;
             ensureVisibleCanvases();
             measureScroll();
@@ -3228,12 +4326,37 @@
         });
 
         document.addEventListener("keydown", (event) => {
+          document.body.classList.remove("is-pointer");
           if (event.key === "Escape") {
             if (!els.passwordBackdrop.hidden) {
               cancelPassword();
               return;
             }
+            if (state.sheetOpen) {
+              closeSheet({ restoreFocus: true });
+              return;
+            }
+            if (!els.pageJumpPopover.hidden) {
+              closePageJump(true);
+              return;
+            }
             if (!els.dropOverlay.hidden) showDropOverlay(false);
+          }
+
+          if (state.sheetOpen && isMobile() && event.key === "Tab") {
+            const focusable = $$("button:not(:disabled), input:not(:disabled), select:not(:disabled), a[href], [tabindex]:not([tabindex='-1'])", els.toolbarControls)
+              .filter((element) => element.getClientRects().length > 0);
+            if (focusable.length) {
+              const currentIndex = focusable.indexOf(document.activeElement);
+              if (event.shiftKey && currentIndex <= 0) {
+                event.preventDefault();
+                focusable[focusable.length - 1].focus();
+              } else if (!event.shiftKey && currentIndex === focusable.length - 1) {
+                event.preventDefault();
+                focusable[0].focus();
+              }
+            }
+            return;
           }
 
           if (!els.passwordBackdrop.hidden && event.key === "Tab") {
@@ -3254,6 +4377,7 @@
         state.prefs = loadPrefs();
         setTheme(state.prefs.theme, false);
         applyPreferences();
+        placeControls();
         bindEvents();
         updateToolbarHeight();
 

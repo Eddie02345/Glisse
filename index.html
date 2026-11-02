@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Glisse — a quieter way to read</title>
-  <meta name="description" content="A private, on-device PDF reader with an adaptive fixation reading mode.">
+  <meta name="description" content="A private, on-device reader for PDF, EPUB, text, and Markdown with an adaptive fixation reading mode.">
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#f4f5f2">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232e5b4d'/%3E%3Ctext x='33' y='46' font-family='Georgia,serif' font-size='41' fill='%23ffffff' text-anchor='middle'%3Eg%3C/text%3E%3C/svg%3E">
@@ -1229,9 +1229,18 @@
 
     .notice-banner p { margin: 0; }
 
+    .notice-actions {
+      display: flex;
+      flex: none;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-left: auto;
+    }
+
     .notice-banner button {
       flex: none;
-      margin-left: auto;
       padding: 6px 11px;
       border: 1px solid var(--line-strong);
       border-radius: 999px;
@@ -1736,6 +1745,11 @@
         gap: 9px;
       }
 
+      .notice-actions {
+        justify-content: flex-start;
+        margin-left: 0;
+      }
+
       .notice-banner button { margin-left: 0; }
 
       .drop-overlay-card { min-height: 210px; }
@@ -2176,12 +2190,12 @@
         </div>
 
         <div class="toolbar-actions">
-          <button type="button" class="open-button" id="openButton" aria-label="Open PDF document">
+          <button type="button" class="open-button" id="openButton" aria-label="Open document">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5"></path>
               <path d="M4 15.5v2A2.5 2.5 0 0 0 6.5 20h11a2.5 2.5 0 0 0 2.5-2.5v-2"></path>
             </svg>
-            <span>Open PDF</span>
+            <span>Open file</span>
           </button>
         </div>
       </div>
@@ -2330,9 +2344,9 @@
       <div class="welcome-card">
         <div class="welcome-copy">
           <h1 class="hero-title">Let your eyes<br><em>glide.</em></h1>
-          <p class="hero-sub">A quiet space for long documents. Glisse sets a bold anchor at the start of every word, giving your eye a place to land and a rhythm to follow.</p>
+          <p class="hero-sub">A quiet space for long documents, from PDF and EPUB to Kindle, Word, OpenDocument, RTF, plain text, and Markdown. Glisse sets a bold anchor at the start of every word, giving your eye a place to land and a rhythm to follow.</p>
 
-          <button type="button" class="dropzone" id="dropzone" aria-label="Choose a PDF document">
+          <button type="button" class="dropzone" id="dropzone" aria-label="Choose a document">
             <span class="drop-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M13.5 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5L13.5 3Z"></path>
@@ -2343,12 +2357,12 @@
             <span class="drop-copy">
               <span class="drop-default">
                 <strong class="drop-title">
-                  <span class="drop-title-wide">Drop a PDF here</span>
-                  <span class="drop-title-mobile">Choose a PDF</span>
+                  <span class="drop-title-wide">Drop a document here</span>
+                  <span class="drop-title-mobile">Choose a document</span>
                 </strong>
                 <span class="drop-sub">
-                  <span class="drop-sub-wide">or click to choose a file</span>
-                  <span class="drop-sub-mobile">PDF files · any size · stays on this device</span>
+                  <span class="drop-sub-wide">or click to choose a file · PDF, EPUB, Kindle, Word, ODT, RTF, TXT, MD</span>
+                  <span class="drop-sub-mobile">PDF, EPUB, Kindle, DOCX, ODT, RTF, TXT, MD</span>
                 </span>
               </span>
               <span class="drop-working" role="status">Opening document…</span>
@@ -2360,7 +2374,7 @@
             </span>
             <span class="drop-loader" aria-hidden="true"></span>
           </button>
-          <input type="file" id="fileInput" accept="application/pdf,.pdf" hidden>
+          <input type="file" id="fileInput" accept=".pdf,.epub,.txt,.text,.md,.markdown,.mdown,.docx,.odt,.rtf,.mobi,.azw,.azw3,.kf8,.prc,application/pdf,application/epub+zip,text/plain,text/markdown,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.oasis.opendocument.text,application/rtf,application/x-mobipocket-ebook,application/vnd.amazon.ebook" hidden>
           <p class="fineprint">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <rect x="5" y="10.5" width="14" height="9" rx="2"></rect>
@@ -2404,11 +2418,14 @@
           </header>
 
           <div class="notice-banner" id="textNotice" hidden>
-            <div>
-              <strong>Limited text layer</strong>
-              <p id="noticeBody"></p>
+            <div class="notice-copy">
+              <strong id="noticeTitle">Limited text layer</strong>
+              <p id="noticeBody" aria-live="polite"></p>
             </div>
-            <button type="button" id="noticeCanvas">Open Canvas Mode</button>
+            <div class="notice-actions">
+              <button type="button" id="noticeOcr" hidden>Read scans with OCR</button>
+              <button type="button" id="noticeCanvas">Open Canvas Mode</button>
+            </div>
           </div>
 
           <article class="glisse-doc" id="glisseDoc" aria-live="off"></article>
@@ -2499,7 +2516,9 @@
         readingSize: $("#readingSize"),
         readingFixation: $("#readingFixation"),
         textNotice: $("#textNotice"),
+        noticeTitle: $("#noticeTitle"),
         noticeBody: $("#noticeBody"),
+        noticeOcr: $("#noticeOcr"),
         noticeCanvas: $("#noticeCanvas"),
         fixationRange: $("#fixationRange"),
         fixationValue: $("#fixationValue"),
@@ -2543,9 +2562,26 @@
 
       const SAMPLE_TEXT = "Every word arrives with a place to land. The eye moves in small, sure leaps — and the sentence opens before you.";
 
+      const WORDS_PER_PAGE = 460;
+      const EPUB_LIBRARY = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+      const MOBI_LIBRARY = "https://cdn.jsdelivr.net/npm/@lingo-reader/mobi-parser@0.4.6/+esm";
+      const OCR_LIBRARY = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+      const OCR_WORKER = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js";
+      const OCR_CORE = "https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1";
+      const OCR_LANG_PATH = "https://tessdata.projectnaptha.com/4.0.0";
+      const OCR_LANGUAGE = "eng";
+
+      const ENTITY_MAP = {
+        amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ",
+        hellip: "…", mdash: "—", ndash: "–", lsquo: "‘", rsquo: "’",
+        ldquo: "“", rdquo: "”", copy: "©", reg: "®", trade: "™"
+      };
+
       const state = {
         prefs: Object.assign({}, DEFAULTS),
         pdf: null,
+        format: "pdf",
+        hasCanvas: true,
         fileName: "",
         fileSize: 0,
         numPages: 0,
@@ -2572,7 +2608,17 @@
         headerHidden: false,
         headerHoldUntil: 0,
         scrollDownAccum: 0,
-        lastScrollY: window.scrollY || 0
+        lastScrollY: window.scrollY || 0,
+        jsZipPromise: null,
+        mobiPromise: null,
+        tesseractPromise: null,
+        ocr: {
+          running: false,
+          cancelled: false,
+          worker: null,
+          done: 0,
+          total: 0
+        }
       };
 
       function clamp(value, min, max) {
@@ -2592,7 +2638,7 @@
       function normalizeWhitespace(value) {
         return String(value)
           .replace(/\u00a0/g, " ")
-          .replace(/[\u200b-\u200d\ufeff]/g, "")
+          .replace(/[\u00ad\u200b-\u200d\ufeff]/g, "")
           .replace(/\s+/gu, " ");
       }
 
@@ -2610,11 +2656,148 @@
 
       function displayTitle(fileName) {
         const cleaned = String(fileName || "")
-          .replace(/\.pdf$/i, "")
+          .replace(/\.(pdf|epub|txt|text|md|markdown|mdown|docx|odt|rtf|mobi|azw|azw3|kf8|prc)$/i, "")
           .replace(/[_]+/g, " ")
           .replace(/\s+/g, " ")
           .trim();
         return cleaned || "Untitled document";
+      }
+
+      function detectFormat(file) {
+        const name = String((file && file.name) || "").toLowerCase();
+        const type = String((file && file.type) || "").toLowerCase();
+        if (type === "application/pdf" || /\.pdf$/.test(name)) return "pdf";
+        if (type === "application/epub+zip" || /\.epub$/.test(name)) return "epub";
+        if (type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || /\.docx$/.test(name)) return "docx";
+        if (type === "application/vnd.oasis.opendocument.text" || /\.odt$/.test(name)) return "odt";
+        if (type === "application/rtf" || type === "text/rtf" || /\.rtf$/.test(name)) return "rtf";
+        if (/\.(azw3|kf8)$/.test(name)) return "kf8";
+        if (/application\/(?:x-mobipocket-ebook|vnd\.amazon\.ebook)/.test(type) || /\.(mobi|azw|prc)$/.test(name)) return "mobi";
+        if (type === "text/markdown" || /\.(md|markdown|mdown)$/.test(name)) return "markdown";
+        if (type === "text/plain" || /\.(txt|text)$/.test(name)) return "text";
+        return null;
+      }
+
+      function formatError(message, name) {
+        const error = new Error(message);
+        error.name = name || "DocumentFormatError";
+        return error;
+      }
+
+      function decodeText(buffer) {
+        const bytes = new Uint8Array(buffer);
+        try {
+          if (bytes.length > 1 && bytes[0] === 0xff && bytes[1] === 0xfe) {
+            return new TextDecoder("utf-16le").decode(buffer);
+          }
+          if (bytes.length > 1 && bytes[0] === 0xfe && bytes[1] === 0xff) {
+            return new TextDecoder("utf-16be").decode(buffer);
+          }
+          return new TextDecoder("utf-8", { fatal: true }).decode(buffer);
+        } catch (error) {
+          try {
+            return new TextDecoder("windows-1252").decode(buffer);
+          } catch (fallbackError) {
+            return new TextDecoder("utf-8").decode(buffer);
+          }
+        }
+      }
+
+      function loadExternalScript(src) {
+        return new Promise((resolve, reject) => {
+          const existing = Array.from(document.scripts).find((script) => script.src === src);
+          if (existing) {
+            if (existing.dataset.glisseLoaded === "true") {
+              resolve();
+              return;
+            }
+            existing.addEventListener("load", () => resolve(), { once: true });
+            existing.addEventListener("error", () => reject(new Error("load-failed")), { once: true });
+            return;
+          }
+
+          const script = document.createElement("script");
+          script.src = src;
+          script.async = true;
+          script.addEventListener("load", () => {
+            script.dataset.glisseLoaded = "true";
+            resolve();
+          }, { once: true });
+          script.addEventListener("error", () => {
+            script.remove();
+            reject(new Error("load-failed"));
+          }, { once: true });
+          document.head.appendChild(script);
+        });
+      }
+
+      function ensureJsZip(label) {
+        if (window.JSZip) return Promise.resolve(window.JSZip);
+        if (!state.jsZipPromise) {
+          state.jsZipPromise = loadExternalScript(EPUB_LIBRARY)
+            .then(() => {
+              if (!window.JSZip) throw new Error("missing");
+              return window.JSZip;
+            })
+            .catch(() => {
+              state.jsZipPromise = null;
+              throw formatError((label || "Document") + " support could not be downloaded. Check your connection and try again.", "LibraryLoadError");
+            });
+        }
+        return state.jsZipPromise;
+      }
+
+      function ensureTesseract() {
+        if (window.Tesseract) return Promise.resolve(window.Tesseract);
+        if (!state.tesseractPromise) {
+          state.tesseractPromise = loadExternalScript(OCR_LIBRARY)
+            .then(() => {
+              if (!window.Tesseract) throw new Error("missing");
+              return window.Tesseract;
+            })
+            .catch(() => {
+              state.tesseractPromise = null;
+              throw formatError("OCR support could not be downloaded. Check your connection and try again.", "LibraryLoadError");
+            });
+        }
+        return state.tesseractPromise;
+      }
+
+      function ensureMobiParser() {
+        if (state.mobiPromise) return state.mobiPromise;
+        state.mobiPromise = import(MOBI_LIBRARY)
+          .then((module) => {
+            if (!module || typeof module.initMobiFile !== "function" || typeof module.initKf8File !== "function") {
+              throw new Error("missing");
+            }
+            return module;
+          })
+          .catch(() => {
+            state.mobiPromise = null;
+            throw formatError("Kindle format support could not be downloaded. Check your connection and try again.", "LibraryLoadError");
+          });
+        return state.mobiPromise;
+      }
+
+      function xmlAttribute(node, localName) {
+        if (!node || !node.attributes) return "";
+        for (const attribute of Array.from(node.attributes)) {
+          if (attribute.localName === localName || attribute.name === localName) return attribute.value;
+        }
+        return "";
+      }
+
+      function decodeEntities(value) {
+        return String(value).replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g, (match, code) => {
+          if (code.charAt(0) === "#") {
+            const hex = code.charAt(1).toLowerCase() === "x";
+            const number = parseInt(hex ? code.slice(2) : code.slice(1), hex ? 16 : 10);
+            if (!Number.isFinite(number)) return match;
+            try { return String.fromCodePoint(number); } catch (error) { return match; }
+          }
+          const key = code.toLowerCase();
+          return Object.prototype.hasOwnProperty.call(ENTITY_MAP, key) ? ENTITY_MAP[key] : match;
+        });
       }
 
       function systemTheme() {
@@ -2723,7 +2906,7 @@
 
         if (!els.pageJumpPopover.hidden && Math.abs(delta) > 2) closePageJump(false);
 
-        if (!state.pdf || !isMobile() || state.sheetOpen) {
+        if (!state.numPages || !isMobile() || state.sheetOpen) {
           setHeaderHidden(false);
           return;
         }
@@ -2760,7 +2943,7 @@
           els.dropzone.setAttribute("aria-label", fileName ? "Opening " + fileName : "Opening document");
         } else {
           els.dropzone.removeAttribute("aria-busy");
-          els.dropzone.setAttribute("aria-label", "Choose a PDF document");
+          els.dropzone.setAttribute("aria-label", "Choose a document");
         }
       }
 
@@ -2914,7 +3097,7 @@
       }
 
       function openPageJump() {
-        if (!isMobile() || !state.pdf || !state.numPages) return;
+        if (!isMobile() || !state.numPages) return;
         if (state.sheetOpen) closeSheet({ animate: false });
 
         els.jumpInput.value = String(state.currentPage);
@@ -3209,6 +3392,856 @@
         };
       }
 
+      /* Reflowable formats: plain text, Markdown, and EPUB */
+
+      function countWords(text) {
+        const words = String(text || "").match(/[\p{L}\p{N}]+/gu);
+        return words ? words.length : 0;
+      }
+
+      function looksLikeHeadingText(text) {
+        const value = String(text || "").trim();
+        if (!value || value.length > 80) return false;
+        const letters = value.match(/\p{L}/gu) || [];
+        const uppercase = value.match(/\p{Lu}/gu) || [];
+        return letters.length > 0 && uppercase.length / letters.length > 0.8;
+      }
+
+      function parsePlainText(source) {
+        const text = String(source || "").replace(/^\ufeff/, "").replace(/\r\n?/g, "\n");
+        const blocks = text.split(/\n[ \t]*\n+/);
+        const paragraphs = [];
+        const allLines = text.split("\n").filter((line) => line.trim().length > 0);
+        const blankSeparators = (text.match(/\n[ \t]*\n/g) || []).length;
+        const sentenceEnds = allLines.filter((line) => /[.!?…:;”"’)\]]$/.test(line.trim())).length;
+        const linePerParagraph = allLines.length > 3 &&
+          blankSeparators < allLines.length * 0.08 &&
+          sentenceEnds / allLines.length >= 0.6;
+
+        function pushParagraph(value) {
+          const normalized = normalizeWhitespace(value).trim();
+          if (!normalized) return;
+          paragraphs.push({ text: normalized, heading: looksLikeHeadingText(normalized) });
+        }
+
+        if (linePerParagraph) {
+          allLines.forEach(pushParagraph);
+          return paragraphs;
+        }
+
+        for (const block of blocks) {
+          const lines = block.split("\n")
+            .map((line) => line.replace(/[ \t]+$/, ""))
+            .filter((line) => line.trim().length > 0);
+          if (!lines.length) continue;
+
+          let joined = "";
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!joined) {
+              joined = trimmed;
+            } else if (/[\p{L}][\u00ad\u2010\u2011-]$/u.test(joined) && /^\p{Ll}/u.test(trimmed)) {
+              joined = joined.replace(/[\u00ad\u2010\u2011-]$/u, "") + trimmed;
+            } else {
+              joined += " " + trimmed;
+            }
+          }
+
+          pushParagraph(joined);
+        }
+
+        return paragraphs;
+      }
+
+      function stripMarkdownInline(value) {
+        let text = String(value || "");
+        text = text.replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1");
+        text = text.replace(/\[([^\]]+)\]\([^)]*\)/g, "$1");
+        text = text.replace(/\[([^\]]+)\]\[[^\]]*\]/g, "$1");
+        text = text.replace(/<((?:https?|mailto):[^>\s]+)>/gi, "$1");
+        text = text.replace(/<\/?[a-zA-Z][^>]*>/g, "");
+        text = text.replace(/`+([^`]*)`+/g, "$1");
+        text = text.replace(/(\*\*|__)(?=\S)([\s\S]*?\S)\1/g, "$2");
+        text = text.replace(/\*(?=\S)([\s\S]*?\S)\*/g, "$1");
+        text = text.replace(/(^|[\s([{"'—–])_(?=\S)([\s\S]*?\S)_(?=$|[\s)\]}"'.,;:!?—–])/g, "$1$2");
+        text = text.replace(/~~(?=\S)([\s\S]*?\S)~~/g, "$1");
+        text = text.replace(/\\([\\`*_{}\[\]()#+\-.!>~|])/g, "$1");
+        return normalizeWhitespace(decodeEntities(text)).trim();
+      }
+
+      function parseMarkdown(source) {
+        const lines = String(source || "").replace(/^\ufeff/, "").replace(/\r\n?/g, "\n").split("\n");
+        const paragraphs = [];
+        let buffer = [];
+        let fence = "";
+        let start = 0;
+
+        if (lines[0] && lines[0].trim() === "---") {
+          for (let index = 1; index < lines.length; index++) {
+            const marker = lines[index].trim();
+            if (marker === "---" || marker === "...") {
+              start = index + 1;
+              break;
+            }
+          }
+        }
+
+        function flush() {
+          if (!buffer.length) return;
+          const text = stripMarkdownInline(buffer.join(" "));
+          if (text) paragraphs.push({ text: text, heading: false });
+          buffer = [];
+        }
+
+        for (let index = start; index < lines.length; index++) {
+          const line = lines[index];
+          const trimmed = line.trim();
+
+          if (fence) {
+            if (trimmed.startsWith(fence)) {
+              flush();
+              fence = "";
+            } else {
+              buffer.push(line);
+            }
+            continue;
+          }
+
+          const fenceMatch = line.match(/^\s*(`{3,}|~{3,})/);
+          if (fenceMatch) {
+            flush();
+            fence = fenceMatch[1].slice(0, 3);
+            continue;
+          }
+
+          if (!trimmed) {
+            flush();
+            continue;
+          }
+
+          const isListItem = /^\s*(?:[-+*]|\d{1,4}[.)])\s+/.test(line);
+          const nextLine = index + 1 < lines.length ? lines[index + 1] : "";
+          const setext = !isListItem && !/^\s{0,3}#{1,6}\s+/.test(line) &&
+            nextLine.trim().length > 0 && /^\s{0,3}(?:=+|-+)\s*$/.test(nextLine);
+          if (setext) {
+            flush();
+            const text = stripMarkdownInline(trimmed);
+            if (text) paragraphs.push({ text: text, heading: true, level: nextLine.trim().charAt(0) === "=" ? 1 : 2 });
+            index++;
+            continue;
+          }
+
+          const heading = line.match(/^\s{0,3}(#{1,6})\s+(.*?)\s*#*\s*$/);
+          if (heading) {
+            flush();
+            const text = stripMarkdownInline(heading[2]);
+            if (text) paragraphs.push({ text: text, heading: true, level: heading[1].length });
+            continue;
+          }
+
+          if (/^\s{0,3}(?:[-*_])(?:\s*(?:[-*_])){2,}\s*$/.test(line)) {
+            flush();
+            continue;
+          }
+
+          const listItem = line.match(/^\s*(?:[-+*]|\d{1,4}[.)])\s+(.*)$/);
+          if (listItem) {
+            flush();
+            const text = stripMarkdownInline(listItem[1]);
+            if (text) paragraphs.push({ text: text, heading: false });
+            continue;
+          }
+
+          const quote = line.match(/^\s*>\s?(.*)$/);
+          if (quote) {
+            buffer.push(quote[1]);
+            continue;
+          }
+
+          if (/^\s*\|.*\|\s*$/.test(line)) {
+            flush();
+            const cells = line.replace(/^\s*\|/, "").replace(/\|\s*$/, "").split("|")
+              .map((cell) => stripMarkdownInline(cell))
+              .filter(Boolean);
+            const isDivider = cells.length > 0 && cells.every((cell) => /^:?-{2,}:?$/.test(cell));
+            if (!isDivider && cells.length) {
+              paragraphs.push({ text: cells.join(" · "), heading: false });
+            }
+            continue;
+          }
+
+          buffer.push(line);
+        }
+
+        flush();
+        return paragraphs;
+      }
+
+      function parseMarkup(text, type) {
+        try {
+          const doc = new DOMParser().parseFromString(String(text || ""), type);
+          if (type !== "text/html" && doc.querySelector("parsererror")) return null;
+          return doc;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function elementsByTag(root, name) {
+        return Array.from(root.getElementsByTagNameNS("*", name));
+      }
+
+      function cleanEpubHref(href) {
+        const value = String(href || "").split("#")[0].split("?")[0];
+        try { return decodeURIComponent(value); } catch (error) { return value; }
+      }
+
+      function resolveArchivePath(baseFilePath, href) {
+        const baseParts = String(baseFilePath || "").split("/").slice(0, -1);
+        const parts = baseParts.concat(String(href || "").split("/"));
+        const stack = [];
+        for (const part of parts) {
+          if (!part || part === ".") continue;
+          if (part === "..") {
+            if (stack.length) stack.pop();
+            continue;
+          }
+          stack.push(part);
+        }
+        return stack.join("/");
+      }
+
+      function epubBlocksFromDocument(doc) {
+        if (!doc || !doc.body) return [];
+        doc.body.querySelectorAll("script, style, nav, svg, noscript").forEach((node) => node.remove());
+        const selector = "h1,h2,h3,h4,h5,h6,p,li,blockquote,pre,dd,dt,figcaption,td,th";
+        const nodes = Array.from(doc.body.querySelectorAll(selector));
+        const blocks = [];
+
+        for (const node of nodes) {
+          const clone = node.cloneNode(true);
+          clone.querySelectorAll(selector).forEach((child) => child.remove());
+          const text = normalizeWhitespace(clone.textContent || "").trim();
+          if (!text) continue;
+
+          const tag = node.tagName.toLowerCase();
+          const isHeading = /^h[1-6]$/.test(tag);
+          blocks.push({
+            text: text,
+            heading: isHeading,
+            level: isHeading ? Number(tag.charAt(1)) : 0
+          });
+        }
+
+        if (!blocks.length) {
+          const fallback = normalizeWhitespace(doc.body.textContent || "").trim();
+          if (fallback) blocks.push({ text: fallback, heading: false });
+        }
+
+        return blocks;
+      }
+
+      async function parseEpub(buffer) {
+        const JSZip = await ensureJsZip("EPUB");
+        let zip;
+        try {
+          zip = await JSZip.loadAsync(buffer);
+        } catch (error) {
+          throw formatError("That EPUB could not be unpacked. It may be damaged or use an unsupported archive.");
+        }
+
+        const containerEntry = zip.file("META-INF/container.xml");
+        if (!containerEntry) {
+          throw formatError("That EPUB is missing its container file and cannot be opened.");
+        }
+
+        const container = parseMarkup(await containerEntry.async("string"), "application/xml");
+        const rootfiles = container ? elementsByTag(container, "rootfile") : [];
+        const opfPath = rootfiles.length ? cleanEpubHref(rootfiles[0].getAttribute("full-path")) : "";
+        const opfEntry = opfPath ? zip.file(opfPath) : null;
+        if (!opfEntry) {
+          throw formatError("That EPUB is missing its package document and cannot be opened.");
+        }
+
+        const opf = parseMarkup(await opfEntry.async("string"), "application/xml");
+        if (!opf) {
+          throw formatError("That EPUB package document could not be read.");
+        }
+
+        const titleNode = elementsByTag(opf, "title").find((node) =>
+          normalizeWhitespace(node.textContent || "").trim().length > 0
+        );
+        const title = titleNode ? normalizeWhitespace(titleNode.textContent).trim() : "";
+
+        const manifest = new Map();
+        for (const item of elementsByTag(opf, "item")) {
+          const id = item.getAttribute("id");
+          const href = item.getAttribute("href");
+          if (!id || !href) continue;
+          manifest.set(id, {
+            href: href,
+            mediaType: String(item.getAttribute("media-type") || "").toLowerCase(),
+            properties: String(item.getAttribute("properties") || "").toLowerCase()
+          });
+        }
+
+        let spineItems = [];
+        for (const ref of elementsByTag(opf, "itemref")) {
+          const item = manifest.get(ref.getAttribute("idref"));
+          if (!item) continue;
+          if (/\bnav\b/.test(item.properties)) continue;
+          if (item.mediaType && !/(xhtml|html|xml)/.test(item.mediaType)) continue;
+          spineItems.push(item);
+        }
+
+        if (!spineItems.length) {
+          spineItems = Array.from(manifest.values()).filter((item) => /(xhtml|html)/.test(item.mediaType));
+        }
+
+        const paragraphs = [];
+
+        for (const item of spineItems) {
+          const path = resolveArchivePath(opfPath, cleanEpubHref(item.href));
+          const entry = path ? zip.file(path) : null;
+          if (!entry) continue;
+
+          const doc = parseMarkup(await entry.async("string"), "text/html");
+          const blocks = epubBlocksFromDocument(doc);
+          if (!blocks.length) continue;
+          blocks[0].chapterStart = true;
+          paragraphs.push.apply(paragraphs, blocks);
+        }
+
+        if (!paragraphs.length) {
+          throw formatError("That EPUB contains no readable text. It may be DRM-protected or made only of images.");
+        }
+
+        return { title: title, paragraphs: paragraphs };
+      }
+
+      /* Word, OpenDocument, RTF, and Kindle formats */
+
+      function headingLevelFromStyle(styleName) {
+        const value = String(styleName || "").trim();
+        if (!value) return 0;
+        if (/^title$/i.test(value)) return 1;
+        if (/^subtitle$/i.test(value)) return 2;
+        const heading = value.match(/^heading[\s_-]*([1-9])$/i) || value.match(/^h([1-9])$/i);
+        return heading ? Number(heading[1]) : 0;
+      }
+
+      async function docxStyleMap(zip) {
+        const entry = zip.file("word/styles.xml");
+        const map = new Map();
+        if (!entry) return map;
+
+        const doc = parseMarkup(await entry.async("string"), "application/xml");
+        if (!doc) return map;
+
+        for (const style of elementsByTag(doc, "style")) {
+          const id = xmlAttribute(style, "styleId");
+          const nameNode = elementsByTag(style, "name")[0];
+          const name = nameNode ? xmlAttribute(nameNode, "val") : "";
+          if (id) map.set(id, name);
+        }
+        return map;
+      }
+
+      async function docxTitle(zip) {
+        const entry = zip.file("docProps/core.xml");
+        if (!entry) return "";
+        const doc = parseMarkup(await entry.async("string"), "application/xml");
+        if (!doc) return "";
+        const node = elementsByTag(doc, "title").find((element) =>
+          normalizeWhitespace(element.textContent || "").trim().length > 0
+        );
+        return node ? normalizeWhitespace(node.textContent).trim() : "";
+      }
+
+      function docxParagraphText(paragraph) {
+        let text = "";
+        for (const node of paragraph.getElementsByTagNameNS("*", "*")) {
+          const name = node.localName;
+          if (name === "t") text += node.textContent || "";
+          else if (name === "tab" || name === "br" || name === "cr") text += " ";
+          else if (name === "noBreakHyphen") text += "-";
+        }
+        return normalizeWhitespace(text).trim();
+      }
+
+      function docxParagraphInfo(paragraph, styles) {
+        const styleNode = elementsByTag(paragraph, "pStyle")[0];
+        const styleId = xmlAttribute(styleNode, "val");
+        const styleName = styles.get(styleId) || styleId;
+        let level = headingLevelFromStyle(styleName) || headingLevelFromStyle(styleId);
+
+        if (!level) {
+          const outlineNode = elementsByTag(paragraph, "outlineLvl")[0];
+          const rawOutline = xmlAttribute(outlineNode, "val");
+          const outline = Number(rawOutline);
+          if (rawOutline !== "" && Number.isFinite(outline) && outline >= 0 && outline < 9) {
+            level = outline + 1;
+          }
+        }
+
+        return {
+          heading: level > 0,
+          level: level,
+          list: elementsByTag(paragraph, "numPr").length > 0
+        };
+      }
+
+      async function parseDocx(buffer) {
+        const JSZip = await ensureJsZip("Word");
+        let zip;
+        try {
+          zip = await JSZip.loadAsync(buffer);
+        } catch (error) {
+          throw formatError("That Word document could not be unpacked. It may be damaged or encrypted.");
+        }
+
+        const entry = zip.file("word/document.xml");
+        if (!entry) {
+          throw formatError("That file does not look like a Word document (DOCX).");
+        }
+
+        const doc = parseMarkup(await entry.async("string"), "application/xml");
+        if (!doc) {
+          throw formatError("That Word document could not be parsed.");
+        }
+
+        const styles = await docxStyleMap(zip);
+        const title = await docxTitle(zip);
+        const body = elementsByTag(doc, "body")[0] || doc;
+        const paragraphs = [];
+
+        for (const node of elementsByTag(body, "p")) {
+          const text = docxParagraphText(node);
+          if (!text) continue;
+
+          const info = docxParagraphInfo(node, styles);
+          const paragraph = {
+            text: info.list ? "• " + text : text,
+            heading: info.heading,
+            level: info.level
+          };
+          if (info.level === 1 && paragraphs.length) paragraph.chapterStart = true;
+          paragraphs.push(paragraph);
+        }
+
+        if (!paragraphs.length) {
+          throw formatError("That Word document contains no readable text.");
+        }
+
+        return { title: title, paragraphs: paragraphs };
+      }
+
+      function odfText(node) {
+        let text = "";
+
+        function walk(current) {
+          if (!current) return;
+          if (current.nodeType === 3) {
+            text += current.nodeValue || "";
+            return;
+          }
+          if (current.nodeType !== 1) return;
+
+          const name = current.localName;
+          if (name === "note" || name === "annotation" || name === "tracked-changes") return;
+          if (name === "s") {
+            const count = Number(xmlAttribute(current, "c")) || 1;
+            text += " ".repeat(Math.min(count, 20));
+            return;
+          }
+          if (name === "tab" || name === "line-break") {
+            text += " ";
+            return;
+          }
+
+          for (const child of current.childNodes) walk(child);
+        }
+
+        walk(node);
+        return normalizeWhitespace(text).trim();
+      }
+
+      function odfInside(node, names) {
+        let parent = node.parentNode;
+        while (parent && parent.nodeType === 1) {
+          if (names.has(parent.localName)) return true;
+          parent = parent.parentNode;
+        }
+        return false;
+      }
+
+      async function odtTitle(zip) {
+        const entry = zip.file("meta.xml");
+        if (!entry) return "";
+        const doc = parseMarkup(await entry.async("string"), "application/xml");
+        if (!doc) return "";
+        const node = elementsByTag(doc, "title").find((element) =>
+          normalizeWhitespace(element.textContent || "").trim().length > 0
+        );
+        return node ? normalizeWhitespace(node.textContent).trim() : "";
+      }
+
+      async function parseOdt(buffer) {
+        const JSZip = await ensureJsZip("OpenDocument");
+        let zip;
+        try {
+          zip = await JSZip.loadAsync(buffer);
+        } catch (error) {
+          throw formatError("That OpenDocument file could not be unpacked. It may be damaged.");
+        }
+
+        const entry = zip.file("content.xml");
+        if (!entry) {
+          throw formatError("That file does not look like an OpenDocument text file (ODT).");
+        }
+
+        const doc = parseMarkup(await entry.async("string"), "application/xml");
+        if (!doc) {
+          throw formatError("That OpenDocument file could not be parsed.");
+        }
+
+        const skipInside = new Set(["note", "annotation", "tracked-changes"]);
+        const nodes = elementsByTag(doc, "h").concat(elementsByTag(doc, "p"))
+          .filter((node) => !odfInside(node, skipInside))
+          .sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1));
+
+        const title = await odtTitle(zip);
+        const paragraphs = [];
+
+        for (const node of nodes) {
+          const text = odfText(node);
+          if (!text) continue;
+
+          const heading = node.localName === "h";
+          const level = heading ? clamp(Number(xmlAttribute(node, "outline-level")) || 1, 1, 9) : 0;
+          const list = odfInside(node, new Set(["list-item", "list"]));
+          const paragraph = {
+            text: list && !heading ? "• " + text : text,
+            heading: heading,
+            level: level
+          };
+          if (level === 1 && paragraphs.length) paragraph.chapterStart = true;
+          paragraphs.push(paragraph);
+        }
+
+        if (!paragraphs.length) {
+          throw formatError("That OpenDocument file contains no readable text.");
+        }
+
+        return { title: title, paragraphs: paragraphs };
+      }
+
+      const RTF_SKIP_DESTINATIONS = new Set([
+        "fonttbl", "colortbl", "stylesheet", "info", "pict", "object", "objclass",
+        "objdata", "header", "headerl", "headerr", "headerf", "footer", "footerl",
+        "footerr", "footerf", "footnote", "annotation", "atnid", "atnauthor",
+        "atndate", "comment", "fldinst", "datafield", "formfield", "listtable",
+        "listoverridetable", "rsidtbl", "generator", "revtbl", "filetbl",
+        "pnseclvl", "latentstyles", "themedata", "colorschememapping", "datastore",
+        "xmlnstbl", "mmathPr", "blipuid", "shppict", "nonshppict"
+      ]);
+
+      const RTF_SYMBOLS = {
+        emdash: "—", endash: "–", bullet: "•",
+        lquote: "‘", rquote: "’", ldblquote: "“", rdblquote: "”"
+      };
+
+      function decodeRtfSource(buffer) {
+        const bytes = new Uint8Array(buffer);
+        let source = "";
+        const chunk = 0x8000;
+        for (let index = 0; index < bytes.length; index += chunk) {
+          source += String.fromCharCode.apply(null, bytes.subarray(index, index + chunk));
+        }
+        return source;
+      }
+
+      function decodeRtfByte(hex, codepage) {
+        const byte = parseInt(hex, 16);
+        if (!Number.isFinite(byte)) return "";
+        if (codepage && codepage !== 65001) {
+          try {
+            return new TextDecoder("windows-" + codepage).decode(new Uint8Array([byte]));
+          } catch (error) {}
+        }
+        try {
+          return new TextDecoder("windows-1252").decode(new Uint8Array([byte]));
+        } catch (error) {
+          return String.fromCharCode(byte);
+        }
+      }
+
+      function rtfTitle(source) {
+        const match = String(source || "").match(/\{\\title\s+([\s\S]*?)\}/);
+        if (!match) return "";
+        const cleaned = match[1]
+          .replace(/\\[a-zA-Z]+-?\d*\s?/g, " ")
+          .replace(/[{}]/g, " ");
+        return normalizeWhitespace(decodeEntities(cleaned)).trim();
+      }
+
+      function parseRtf(source) {
+        const input = String(source || "");
+        if (!/^\s*\{\\rtf/i.test(input)) {
+          throw formatError("That file does not look like an RTF document.");
+        }
+
+        const paragraphs = [];
+        let current = "";
+        let codepage = 1252;
+        let ucRemaining = 0;
+        const stack = [{ skip: false, uc: 1 }];
+
+        function flush() {
+          const text = normalizeWhitespace(current).trim();
+          if (text) paragraphs.push({ text: text, heading: looksLikeHeadingText(text) });
+          current = "";
+        }
+
+        let index = 0;
+        while (index < input.length) {
+          const char = input.charAt(index);
+          const state = stack[stack.length - 1];
+
+          if (char === "{") {
+            stack.push({ skip: state.skip, uc: state.uc });
+            index++;
+            continue;
+          }
+          if (char === "}") {
+            if (stack.length > 1) stack.pop();
+            index++;
+            continue;
+          }
+          if (char === "\r" || char === "\n") {
+            index++;
+            continue;
+          }
+          if (char !== "\\") {
+            if (!state.skip) {
+              if (ucRemaining > 0) ucRemaining--;
+              else current += char;
+            }
+            index++;
+            continue;
+          }
+
+          const next = input.charAt(index + 1);
+          if (!next) break;
+
+          if (next === "*") {
+            state.skip = true;
+            index += 2;
+            continue;
+          }
+          if (next === "'") {
+            const hex = input.slice(index + 2, index + 4);
+            if (/^[0-9a-fA-F]{2}$/.test(hex)) {
+              if (!state.skip) {
+                if (ucRemaining > 0) ucRemaining--;
+                else current += decodeRtfByte(hex, codepage);
+              }
+              index += 4;
+            } else {
+              index += 2;
+            }
+            continue;
+          }
+          if (next === "\\" || next === "{" || next === "}") {
+            if (!state.skip) current += next;
+            index += 2;
+            continue;
+          }
+          if (next === "~") {
+            if (!state.skip) current += "\u00a0";
+            index += 2;
+            continue;
+          }
+          if (next === "-") {
+            index += 2;
+            continue;
+          }
+          if (next === "_") {
+            if (!state.skip) current += "\u2011";
+            index += 2;
+            continue;
+          }
+          if (next === " ") {
+            if (!state.skip) current += " ";
+            index += 2;
+            continue;
+          }
+          if (!/[a-zA-Z]/.test(next)) {
+            index += 2;
+            continue;
+          }
+
+          let cursor = index + 1;
+          let word = "";
+          while (cursor < input.length && /[a-zA-Z]/.test(input.charAt(cursor))) {
+            word += input.charAt(cursor);
+            cursor++;
+          }
+
+          let sign = 1;
+          if (input.charAt(cursor) === "-") {
+            sign = -1;
+            cursor++;
+          }
+          let digits = "";
+          while (cursor < input.length && /[0-9]/.test(input.charAt(cursor))) {
+            digits += input.charAt(cursor);
+            cursor++;
+          }
+          const parameter = digits ? sign * Number(digits) : null;
+
+          if (input.charAt(cursor) === " ") cursor++;
+
+          if (word === "ansicpg" && parameter !== null) {
+            codepage = parameter;
+            index = cursor;
+            continue;
+          }
+          if (word === "uc" && parameter !== null) {
+            state.uc = clamp(parameter, 0, 10);
+            ucRemaining = 0;
+            index = cursor;
+            continue;
+          }
+          if (word === "u" && parameter !== null) {
+            if (!state.skip) {
+              current += String.fromCharCode(((parameter % 65536) + 65536) % 65536);
+            }
+            ucRemaining = state.uc;
+            index = cursor;
+            continue;
+          }
+          if (word === "bin" && parameter !== null) {
+            index = cursor + Math.max(0, parameter);
+            continue;
+          }
+          if (RTF_SKIP_DESTINATIONS.has(word)) {
+            state.skip = true;
+            index = cursor;
+            continue;
+          }
+
+          if (!state.skip) {
+            if (word === "par" || word === "sect" || word === "page" || word === "row") {
+              flush();
+            } else if (word === "line" || word === "tab" || word === "cell") {
+              current += " ";
+            } else if (RTF_SYMBOLS[word]) {
+              current += RTF_SYMBOLS[word];
+            }
+          }
+
+          index = cursor;
+        }
+
+        flush();
+        return paragraphs;
+      }
+
+      async function parseMobi(buffer, kind) {
+        const parser = await ensureMobiParser();
+        const bytes = new Uint8Array(buffer);
+        let book = null;
+        let lastError = null;
+        const attempts = kind === "kf8" ? ["kf8", "mobi"] : ["mobi", "kf8"];
+
+        for (const attempt of attempts) {
+          try {
+            book = attempt === "kf8"
+              ? await parser.initKf8File(bytes)
+              : await parser.initMobiFile(bytes);
+            if (book) break;
+          } catch (error) {
+            lastError = error;
+          }
+        }
+
+        if (!book) {
+          const message = String(lastError && lastError.message ? lastError.message : "");
+          if (/drm|encrypt/i.test(message)) {
+            throw formatError("This Kindle book is DRM-protected and cannot be opened.");
+          }
+          throw formatError("That Kindle book could not be read. It may be damaged or use an unsupported variant.");
+        }
+
+        try {
+          const metadata = typeof book.getMetadata === "function" ? book.getMetadata() : {};
+          const title = metadata && metadata.title ? normalizeWhitespace(metadata.title).trim() : "";
+          const spine = typeof book.getSpine === "function" ? book.getSpine() : [];
+          const paragraphs = [];
+
+          for (const item of spine) {
+            const chapter = book.loadChapter(item.id);
+            const html = chapter && typeof chapter === "object" ? chapter.html : chapter;
+            if (!html) continue;
+
+            const doc = parseMarkup(html, "text/html");
+            const blocks = epubBlocksFromDocument(doc);
+            if (!blocks.length) continue;
+            blocks[0].chapterStart = true;
+            paragraphs.push.apply(paragraphs, blocks);
+          }
+
+          if (!paragraphs.length) {
+            throw formatError("That Kindle book contains no readable text.");
+          }
+
+          return { title: title, paragraphs: paragraphs };
+        } finally {
+          if (typeof book.destroy === "function") {
+            try { book.destroy(); } catch (error) {}
+          }
+        }
+      }
+
+      function paginateParagraphs(paragraphs, targetWords) {
+        const target = Math.max(80, Number(targetWords) || WORDS_PER_PAGE);
+        const pages = [];
+        let current = [];
+        let count = 0;
+
+        function flush() {
+          if (!current.length) return;
+          pages.push({ paragraphs: current, wordCount: 0, sparse: false });
+          current = [];
+          count = 0;
+        }
+
+        for (const paragraph of paragraphs) {
+          if (!paragraph || !paragraph.text) continue;
+          if (current.length && (paragraph.chapterStart || count >= target)) flush();
+          current.push(paragraph);
+          count += countWords(paragraph.text);
+        }
+        flush();
+
+        for (let index = 0; index < pages.length - 1; index++) {
+          const page = pages[index];
+          const next = pages[index + 1];
+          const carry = [];
+          while (page.paragraphs.length > 1 && page.paragraphs[page.paragraphs.length - 1].heading) {
+            carry.unshift(page.paragraphs.pop());
+          }
+          if (carry.length) next.paragraphs = carry.concat(next.paragraphs);
+        }
+
+        for (const page of pages) {
+          page.wordCount = page.paragraphs.reduce((total, paragraph) => total + countWords(paragraph.text), 0);
+        }
+
+        return pages;
+      }
+
       /* Document lifecycle */
 
       function resetDocumentDom() {
@@ -3216,6 +4249,12 @@
           try { task.cancel(); } catch (error) {}
         });
         state.renderTasks.clear();
+
+        if (state.ocr.running || state.ocr.worker) stopOcr();
+        state.ocr.running = false;
+        state.ocr.cancelled = false;
+        state.ocr.done = 0;
+        state.ocr.total = 0;
 
         if (state.canvasObserver) {
           state.canvasObserver.disconnect();
@@ -3236,27 +4275,29 @@
       async function openDocument(file) {
         if (!file) return;
 
-        const looksLikePdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
-        if (!looksLikePdf) {
-          const message = "That file is not a PDF. Choose a document ending in .pdf.";
+        const format = detectFormat(file);
+        if (!format) {
+          const message = "That file format is not supported. Choose a PDF, EPUB, Kindle, Word, ODT, RTF, TXT, or Markdown document.";
           showWelcomeError(message);
           showToast(message);
           return;
         }
 
         if (file.size === 0) {
-          const message = "That file is empty. Choose a valid PDF document.";
+          const message = "That file is empty. Choose a document with content.";
           showWelcomeError(message);
           showToast(message);
           return;
         }
 
-        if (typeof pdfjsLib === "undefined") {
-          const message = "The reading engine could not be loaded. Check your connection and reload the page.";
+        if (format === "pdf" && typeof pdfjsLib === "undefined") {
+          const message = "The PDF reader could not be loaded. Check your connection and reload the page.";
           showWelcomeError(message);
           showToast(message);
           return;
         }
+
+        if (state.ocr.running) stopOcr();
 
         const token = ++state.openToken;
         els.welcomeError.hidden = true;
@@ -3274,6 +4315,31 @@
         showLoader("Opening document", file.name + " · " + formatBytes(file.size) + " · stays on this device");
         setLoaderProgress(null);
 
+        try {
+          if (format === "pdf") {
+            await openPdfDocument(file, token);
+          } else {
+            await openReflowableDocument(file, format, token);
+          }
+        } catch (error) {
+          if (token !== state.openToken) return;
+          const message = friendlyError(error);
+          if (state.numPages) {
+            showToast(message);
+          } else {
+            showWelcomeError(message);
+            showToast(message);
+          }
+        } finally {
+          if (token === state.openToken) {
+            hideLoader();
+            setUploadState(false);
+            els.fileInput.value = "";
+          }
+        }
+      }
+
+      async function openPdfDocument(file, token) {
         let task = null;
         let passwordCancelled = false;
 
@@ -3321,26 +4387,61 @@
 
           await adoptDocument(pdf, file, token);
         } catch (error) {
-          if (token !== state.openToken) return;
           if (task && task.destroy) {
             try { await task.destroy(); } catch (destroyError) {}
           }
-          const message = passwordCancelled
-            ? "This document is password protected. Unlock it to continue."
-            : friendlyError(error);
-          if (state.pdf) {
-            showToast(message);
-          } else {
-            showWelcomeError(message);
-            showToast(message);
+          if (passwordCancelled) {
+            throw formatError("This document is password protected. Unlock it to continue.", "PasswordException");
           }
-        } finally {
-          if (token === state.openToken) {
-            hideLoader();
-            setUploadState(false);
-            els.fileInput.value = "";
-          }
+          throw error;
         }
+      }
+
+      async function openReflowableDocument(file, format, token) {
+        const buffer = await file.arrayBuffer();
+        if (token !== state.openToken) return;
+
+        setLoaderProgress(0.25);
+        let parsed;
+
+        if (format === "epub") {
+          parsed = await parseEpub(buffer);
+          parsed.format = "epub";
+        } else if (format === "docx") {
+          parsed = await parseDocx(buffer);
+          parsed.format = "docx";
+        } else if (format === "odt") {
+          parsed = await parseOdt(buffer);
+          parsed.format = "odt";
+        } else if (format === "mobi" || format === "kf8") {
+          parsed = await parseMobi(buffer, format);
+          parsed.format = format;
+        } else if (format === "rtf") {
+          const source = decodeRtfSource(buffer);
+          parsed = {
+            title: rtfTitle(source),
+            format: "rtf",
+            paragraphs: parseRtf(source)
+          };
+        } else {
+          const source = decodeText(buffer);
+          parsed = {
+            title: "",
+            format: format,
+            paragraphs: format === "markdown" ? parseMarkdown(source) : parsePlainText(source)
+          };
+        }
+
+        if (token !== state.openToken) return;
+        if (!parsed.paragraphs.length) {
+          throw formatError("No readable text was found in that document.");
+        }
+
+        setLoaderProgress(0.65);
+        const pages = paginateParagraphs(parsed.paragraphs, WORDS_PER_PAGE);
+        if (token !== state.openToken) return;
+
+        adoptTextDocument(parsed, pages, file, token);
       }
 
       async function adoptDocument(pdf, file, token) {
@@ -3362,6 +4463,8 @@
         resetDocumentDom();
 
         state.pdf = pdf;
+        state.format = "pdf";
+        state.hasCanvas = true;
         state.fileName = file.name;
         state.fileSize = file.size;
         state.numPages = pdf.numPages;
@@ -3407,6 +4510,84 @@
         }
 
         extractDocument(docToken);
+      }
+
+      function adoptTextDocument(doc, pages, file, token) {
+        if (token !== state.openToken) return;
+
+        state.docToken++;
+        const docToken = state.docToken;
+        const previousPdf = state.pdf;
+        resetDocumentDom();
+
+        state.pdf = null;
+        state.format = doc.format || "text";
+        state.hasCanvas = false;
+        state.fileName = file.name;
+        state.fileSize = file.size;
+        state.numPages = pages.length;
+        state.pageData = pages;
+        state.currentPage = 1;
+        state.view = "glisse";
+
+        document.body.classList.add("has-doc");
+        els.welcome.hidden = true;
+        els.reader.hidden = false;
+        els.bottomBar.hidden = false;
+        els.viewSwitch.hidden = true;
+        els.toolbarControls.hidden = false;
+        els.progressRail.hidden = false;
+        els.docMeta.hidden = false;
+        els.docName.textContent = file.name;
+        els.docName.title = file.name;
+        els.docStat.textContent = pluralPage(pages.length) + " · " + formatBytes(file.size);
+        els.pageTotal.textContent = String(pages.length);
+        els.pageInput.max = String(pages.length);
+        els.pageInput.value = "1";
+
+        const title = doc.title || displayTitle(file.name);
+        els.readingTitle.textContent = title;
+        els.readingTitle.title = file.name;
+        els.readingPages.textContent = pluralPage(pages.length);
+        els.readingSize.textContent = formatBytes(file.size);
+
+        buildGlisseSections(pages.length);
+        setView("glisse", { preservePage: false, scroll: false });
+        setCurrentPage(1, true);
+        updateToolbarHeight();
+
+        hideLoader();
+        requestAnimationFrame(() => {
+          if (docToken !== state.docToken) return;
+          window.scrollTo({ top: 0, behavior: "auto" });
+          measureScroll();
+        });
+
+        if (previousPdf) {
+          try { previousPdf.destroy(); } catch (error) {}
+        }
+
+        fillTextDocument(docToken, pages);
+      }
+
+      async function fillTextDocument(token, pages) {
+        for (let index = 0; index < pages.length; index++) {
+          if (token !== state.docToken) return;
+          fillGlissePage(index + 1, pages[index]);
+
+          if (index === 0 || (index + 1) % 6 === 0 || index === pages.length - 1) {
+            els.docStat.textContent = "Preparing text · " + (index + 1) + " / " + pages.length;
+          }
+          if ((index + 1) % 6 === 0) {
+            await new Promise((resolve) => setTimeout(resolve, 0));
+          }
+        }
+
+        if (token !== state.docToken) return;
+        els.docStat.textContent = pluralPage(pages.length) + " · " + formatBytes(state.fileSize);
+        refreshTextNotice();
+        requestAnimationFrame(settlePendingJump);
+        requestScrollMeasure();
       }
 
       function buildCanvasShells(count, ratio) {
@@ -3500,11 +4681,10 @@
         if (!state.pdf) return;
         const pdf = state.pdf;
         const total = pdf.numPages;
-        let totalWords = 0;
-        let sparsePages = 0;
 
         for (let pageNumber = 1; pageNumber <= total; pageNumber++) {
           if (token !== state.docToken || !state.pdf) return;
+          if (state.pageData[pageNumber - 1] && state.pageData[pageNumber - 1].ocr) continue;
 
           let data = { paragraphs: [], wordCount: 0, sparse: true, error: false };
 
@@ -3527,8 +4707,6 @@
           if (token !== state.docToken) return;
 
           state.pageData[pageNumber - 1] = data;
-          totalWords += data.wordCount;
-          if (data.sparse) sparsePages++;
           fillGlissePage(pageNumber, data);
 
           if (pageNumber === 1 || pageNumber % 4 === 0 || pageNumber === total) {
@@ -3543,7 +4721,7 @@
         if (token !== state.docToken) return;
 
         els.docStat.textContent = pluralPage(total) + " · " + formatBytes(state.fileSize);
-        updateTextNotice(totalWords, sparsePages, total);
+        refreshTextNotice();
         requestAnimationFrame(settlePendingJump);
         requestScrollMeasure();
 
@@ -3582,14 +4760,29 @@
           const missing = document.createElement("div");
           missing.className = "page-missing";
           const message = document.createElement("p");
-          message.textContent = "This page has no selectable text. It may be a scan or an image-based page.";
-          const button = document.createElement("button");
-          button.type = "button";
-          button.className = "text-link";
-          button.dataset.openCanvasPage = String(pageNumber);
-          button.textContent = "View the page image";
+          message.textContent = state.hasCanvas
+            ? "This page has no selectable text. It may be a scan or an image-based page."
+            : "This page contains no readable text.";
           missing.appendChild(message);
-          missing.appendChild(button);
+
+          if (state.pdf) {
+            const ocrButton = document.createElement("button");
+            ocrButton.type = "button";
+            ocrButton.className = "text-link";
+            ocrButton.dataset.ocrPage = String(pageNumber);
+            ocrButton.textContent = "Read this page with OCR";
+            missing.appendChild(ocrButton);
+          }
+
+          if (state.hasCanvas) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "text-link";
+            button.dataset.openCanvasPage = String(pageNumber);
+            button.textContent = "View the page image";
+            missing.appendChild(button);
+          }
+
           body.appendChild(missing);
           section._anchorRatio = state.prefs.intensity / 100;
           return;
@@ -3610,22 +4803,432 @@
         section._anchorRatio = ratio;
       }
 
-      function updateTextNotice(totalWords, sparsePages, total) {
-        const limited = totalWords === 0 || (total > 0 && sparsePages / total > 0.25);
-        els.textNotice.hidden = !limited;
-        if (!limited) return;
+      /* On-device OCR for scanned PDF pages */
 
-        if (totalWords === 0) {
-          els.noticeBody.textContent = "This document appears to be a scan. There is no selectable text to set in Glisse Mode; Canvas Mode still shows every original page.";
-        } else {
-          els.noticeBody.textContent = "Some pages contain little or no selectable text. They may be scans; Canvas Mode always shows the original pages at full fidelity.";
+      function refreshTextNotice() {
+        if (!state.numPages) {
+          els.textNotice.hidden = true;
+          return;
         }
+
+        const total = state.numPages;
+        let words = 0;
+        let sparse = 0;
+
+        for (let index = 0; index < total; index++) {
+          const data = state.pageData[index];
+          if (!data) {
+            sparse++;
+            continue;
+          }
+          words += Number(data.wordCount) || 0;
+          if (data.sparse) sparse++;
+        }
+
+        const running = state.ocr.running;
+        const limited = words === 0 || sparse / total > 0.25;
+        if (!limited && !running) {
+          els.textNotice.hidden = true;
+          return;
+        }
+
+        els.textNotice.hidden = false;
+        const canOcr = Boolean(state.pdf);
+
+        if (running) {
+          const current = Math.min(state.ocr.done + 1, state.ocr.total);
+          els.noticeTitle.textContent = "Recognizing scanned pages";
+          els.noticeBody.textContent = "Page " + current + " of " + state.ocr.total + " · OCR runs on this device";
+          els.noticeOcr.hidden = false;
+          els.noticeOcr.textContent = "Stop";
+          els.noticeCanvas.hidden = true;
+          return;
+        }
+
+        els.noticeCanvas.hidden = !state.hasCanvas;
+        els.noticeOcr.hidden = !canOcr || sparse === 0;
+        els.noticeOcr.textContent = sparse === total
+          ? "Read scans with OCR"
+          : "Read " + sparse + " " + (sparse === 1 ? "scan" : "scans") + " with OCR";
+
+        if (words === 0) {
+          els.noticeTitle.textContent = "No text layer";
+          els.noticeBody.textContent = canOcr
+            ? "This document looks like a scan. OCR (English) can read its pages on this device and set them in Glisse Mode."
+            : "This document contains no readable text.";
+        } else {
+          els.noticeTitle.textContent = "Limited text layer";
+          els.noticeBody.textContent = canOcr
+            ? "Some pages contain little or no selectable text. OCR (English) can read the " + sparse + " scanned " + (sparse === 1 ? "page" : "pages") + " on this device."
+            : "Some pages contain little or no selectable text.";
+        }
+      }
+
+      function sparsePageNumbers() {
+        const pages = [];
+        for (let index = 0; index < state.numPages; index++) {
+          const data = state.pageData[index];
+          if (!data || data.sparse) pages.push(index + 1);
+        }
+        return pages;
+      }
+
+      function stopOcr() {
+        state.ocr.cancelled = true;
+        state.ocr.running = false;
+        const worker = state.ocr.worker;
+        state.ocr.worker = null;
+        if (worker) {
+          try { worker.terminate(); } catch (error) {}
+        }
+        refreshTextNotice();
+      }
+
+      async function runOcr(requestedPages) {
+        if (!state.pdf || state.ocr.running) return;
+
+        const targets = (Array.isArray(requestedPages) && requestedPages.length
+          ? requestedPages
+          : sparsePageNumbers()
+        )
+          .map((page) => Number(page))
+          .filter((page) => page >= 1 && page <= state.numPages);
+
+        if (!targets.length) return;
+
+        const token = state.docToken;
+        state.ocr.running = true;
+        state.ocr.cancelled = false;
+        state.ocr.done = 0;
+        state.ocr.total = targets.length;
+        refreshTextNotice();
+
+        try {
+          const Tesseract = await ensureTesseract();
+          if (state.ocr.cancelled || token !== state.docToken) return;
+
+          const worker = await Tesseract.createWorker(OCR_LANGUAGE, 1, {
+            workerPath: OCR_WORKER,
+            corePath: OCR_CORE,
+            langPath: OCR_LANG_PATH,
+            logger: function () {},
+            errorHandler: function () {}
+          });
+
+          try {
+            await worker.setParameters({
+              tessedit_pageseg_mode: "11",
+              preserve_interword_spaces: "1"
+            });
+          } catch (parameterError) {}
+
+          if (state.ocr.cancelled || token !== state.docToken) {
+            try { await worker.terminate(); } catch (error) {}
+            return;
+          }
+
+          state.ocr.worker = worker;
+
+          for (let index = 0; index < targets.length; index++) {
+            if (state.ocr.cancelled || token !== state.docToken) break;
+
+            state.ocr.done = index;
+            refreshTextNotice();
+
+            const reading = await ocrPdfPage(worker, targets[index], token);
+            if (state.ocr.cancelled || token !== state.docToken) break;
+
+            if (reading) {
+              state.pageData[targets[index] - 1] = reading;
+              fillGlissePage(targets[index], reading);
+            }
+
+            state.ocr.done = index + 1;
+            refreshTextNotice();
+          }
+        } catch (error) {
+          if (!state.ocr.cancelled && token === state.docToken) {
+            const message = error && (error.name === "LibraryLoadError" || error.name === "DocumentFormatError")
+              ? friendlyError(error)
+              : "OCR could not finish on this page. Try again, or open Canvas Mode to read the page image.";
+            showToast(message);
+          }
+        } finally {
+          const worker = state.ocr.worker;
+          state.ocr.worker = null;
+          if (worker) {
+            try { await worker.terminate(); } catch (error) {}
+          }
+          if (token === state.docToken) {
+            state.ocr.running = false;
+            state.ocr.cancelled = false;
+            refreshTextNotice();
+            requestScrollMeasure();
+          }
+        }
+      }
+
+      async function ocrPdfPage(worker, pageNumber, token) {
+        const pdf = state.pdf;
+        if (!pdf) return null;
+
+        const page = await pdf.getPage(pageNumber);
+        if (token !== state.docToken || !state.pdf) return null;
+
+        const base = page.getViewport({ scale: 1 });
+        const scale = clamp(2000 / Math.max(1, base.width), 1.5, 4);
+        const viewport = page.getViewport({ scale: scale });
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.floor(viewport.width));
+        canvas.height = Math.max(1, Math.floor(viewport.height));
+
+        const context = canvas.getContext("2d");
+        if (!context) throw new Error("Canvas context unavailable");
+
+        const renderTask = page.render({ canvasContext: context, viewport: viewport });
+        state.renderTasks.add(renderTask);
+        try {
+          await renderTask.promise;
+        } finally {
+          state.renderTasks.delete(renderTask);
+        }
+
+        if (token !== state.docToken || !state.pdf) return null;
+
+        const result = await worker.recognize(canvas);
+        canvas.width = 0;
+        canvas.height = 0;
+
+        if (token !== state.docToken || !state.pdf) return null;
+        return buildOcrReading(result && result.data);
+      }
+
+      function joinOcrLines(value) {
+        const lines = String(value || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+        let text = "";
+        for (const line of lines) {
+          if (!text) {
+            text = line;
+          } else if (/[\p{L}][\u00ad\u2010\u2011-]$/u.test(text) && /^\p{Ll}/u.test(line)) {
+            text = text.replace(/[\u00ad\u2010\u2011-]$/u, "") + line;
+          } else {
+            text += " " + line;
+          }
+        }
+        return normalizeWhitespace(text).trim();
+      }
+
+      function collectOcrLines(data) {
+        const lines = [];
+        const blocks = data && Array.isArray(data.blocks) ? data.blocks : [];
+
+        for (const block of blocks) {
+          if (!block) continue;
+          const paragraphs = Array.isArray(block.paragraphs) && block.paragraphs.length
+            ? block.paragraphs
+            : [block];
+
+          for (const paragraph of paragraphs) {
+            if (!paragraph || !Array.isArray(paragraph.lines)) continue;
+            for (const line of paragraph.lines) {
+              const bbox = line && line.bbox;
+              if (!bbox) continue;
+
+              const text = normalizeWhitespace(line.text || "").trim();
+              if (!text) continue;
+
+              const x0 = Number(bbox.x0);
+              const y0 = Number(bbox.y0);
+              const x1 = Number(bbox.x1);
+              const y1 = Number(bbox.y1);
+              if (![x0, y0, x1, y1].every(Number.isFinite) || x1 <= x0 || y1 <= y0) continue;
+
+              lines.push({
+                text: text,
+                x0: x0, y0: y0, x1: x1, y1: y1,
+                width: x1 - x0,
+                height: y1 - y0
+              });
+            }
+          }
+        }
+
+        return lines;
+      }
+
+      function layoutGaps(intervals) {
+        const sorted = intervals
+          .filter((interval) => interval[1] > interval[0])
+          .sort((a, b) => a[0] - b[0]);
+        if (sorted.length < 2) return [];
+
+        const gaps = [];
+        let end = sorted[0][1];
+
+        for (let index = 1; index < sorted.length; index++) {
+          const start = sorted[index][0];
+          const stop = sorted[index][1];
+          if (start > end) gaps.push({ start: end, end: start, size: start - end });
+          if (stop > end) end = stop;
+        }
+
+        return gaps;
+      }
+
+      function compareOcrLines(a, b) {
+        return (a.y0 - b.y0) || (a.x0 - b.x0);
+      }
+
+      function medianLineWidth(lines) {
+        if (!lines.length) return 0;
+        const widths = lines.map((line) => line.width).sort((a, b) => a - b);
+        return widths[Math.floor(widths.length / 2)] || 0;
+      }
+
+      function isOcrColumnGap(gap, lines, contentWidth) {
+        if (gap.size < Math.max(10, contentWidth * 0.012)) return false;
+
+        const middle = (gap.start + gap.end) / 2;
+        const left = [];
+        const right = [];
+
+        for (const line of lines) {
+          const center = (line.x0 + line.x1) / 2;
+          (center < middle ? left : right).push(line);
+        }
+
+        if (left.length < 2 || right.length < 2) return false;
+
+        const leftWidth = medianLineWidth(left);
+        const rightWidth = medianLineWidth(right);
+        return Math.min(leftWidth, rightWidth) >= contentWidth * 0.12 &&
+          Math.max(leftWidth, rightWidth) <= contentWidth * 0.95;
+      }
+
+      /* Column-aware reading order: recursively split on horizontal bands and vertical gutters. */
+      function sortOcrLayout(lines, depth) {
+        const level = depth || 0;
+        const ordered = lines.slice().sort(compareOcrLines);
+        if (lines.length < 2 || level > 24) return ordered;
+
+        let minX = Infinity;
+        let maxX = -Infinity;
+        const heights = [];
+
+        for (const line of lines) {
+          if (line.x0 < minX) minX = line.x0;
+          if (line.x1 > maxX) maxX = line.x1;
+          heights.push(line.height);
+        }
+
+        const contentWidth = Math.max(1, maxX - minX);
+        heights.sort((a, b) => a - b);
+        const medianHeight = heights[Math.floor(heights.length / 2)] || 10;
+
+        const vertical = layoutGaps(lines.map((line) => [line.x0, line.x1]))
+          .filter((gap) => gap.size >= Math.max(10, contentWidth * 0.012))
+          .sort((a, b) => b.size - a.size)[0];
+        const horizontal = layoutGaps(lines.map((line) => [line.y0, line.y1]))
+          .filter((gap) => gap.size >= Math.max(8, medianHeight * 1.25))
+          .sort((a, b) => b.size - a.size)[0];
+
+        let axis = "";
+        if (vertical && isOcrColumnGap(vertical, lines, contentWidth)) {
+          axis = "x";
+        } else if (horizontal) {
+          axis = "y";
+        } else if (vertical) {
+          axis = "x";
+        }
+        if (!axis) return ordered;
+
+        const gap = axis === "x" ? vertical : horizontal;
+        const middle = (gap.start + gap.end) / 2;
+        const first = [];
+        const second = [];
+
+        for (const line of lines) {
+          const center = axis === "x" ? (line.x0 + line.x1) / 2 : (line.y0 + line.y1) / 2;
+          (center < middle ? first : second).push(line);
+        }
+
+        if (!first.length || !second.length) return ordered;
+        return sortOcrLayout(first, level + 1).concat(sortOcrLayout(second, level + 1));
+      }
+
+      function groupOcrLines(lines) {
+        if (!lines.length) return [];
+
+        const heights = lines.map((line) => line.height).sort((a, b) => a - b);
+        const medianHeight = heights[Math.floor(heights.length / 2)] || 10;
+        const paragraphs = [];
+        let current = [];
+        let previous = null;
+
+        function flush() {
+          if (!current.length) return;
+          const text = joinOcrLines(current.map((line) => line.text).join("\n"));
+          if (text) paragraphs.push({ text: text, heading: looksLikeHeadingText(text) });
+          current = [];
+        }
+
+        for (const line of lines) {
+          if (previous) {
+            const gap = line.y0 - previous.y1;
+            const overlap = Math.min(previous.x1, line.x1) - Math.max(previous.x0, line.x0);
+            const smallerWidth = Math.min(previous.width, line.width);
+            const sameColumn = overlap >= Math.min(12, smallerWidth * 0.25);
+            const closeEnough = gap <= medianHeight * 1.25 && gap >= -medianHeight * 0.6;
+
+            if (sameColumn && closeEnough) {
+              current.push(line);
+            } else {
+              flush();
+              current.push(line);
+            }
+          } else {
+            current.push(line);
+          }
+          previous = line;
+        }
+
+        flush();
+        return paragraphs;
+      }
+
+      function buildOcrReading(data) {
+        const lines = collectOcrLines(data);
+        let paragraphs = lines.length ? groupOcrLines(sortOcrLayout(lines)) : [];
+
+        if (!paragraphs.length) {
+          const blocks = data && Array.isArray(data.blocks) ? data.blocks : [];
+          const add = (text) => {
+            const joined = joinOcrLines(text);
+            if (joined) paragraphs.push({ text: joined, heading: false });
+          };
+
+          for (const block of blocks) {
+            if (!block) continue;
+            const blockParagraphs = Array.isArray(block.paragraphs) && block.paragraphs.length ? block.paragraphs : [block];
+            for (const paragraph of blockParagraphs) {
+              if (paragraph) add(paragraph.text || "");
+            }
+          }
+
+          if (!paragraphs.length && data && data.text) {
+            String(data.text).split(/\n{2,}/).forEach(add);
+          }
+        }
+
+        const wordCount = paragraphs.reduce((total, paragraph) => total + countWords(paragraph.text), 0);
+        return { paragraphs: paragraphs, wordCount: wordCount, sparse: wordCount < 12, ocr: true };
       }
 
       function friendlyError(error) {
         const name = error && error.name ? error.name : "";
         const message = error && error.message ? error.message : "";
 
+        if (name === "DocumentFormatError" || name === "LibraryLoadError") return message;
         if (name === "PasswordException") return "This document is password protected. Unlock it to continue.";
         if (name === "InvalidPDFException") return "That file does not appear to be a valid PDF. It may be damaged or incomplete.";
         if (name === "MissingPDFException") return "No document was found at that location.";
@@ -3762,7 +5365,8 @@
       /* View and navigation */
 
       function setView(view, options) {
-        if (!state.pdf) return;
+        if (!state.numPages) return;
+        if (view === "canvas" && !state.hasCanvas) view = "glisse";
         const settings = Object.assign({ preservePage: true, scroll: true }, options || {});
         const changed = state.view !== view;
         state.view = view;
@@ -3828,7 +5432,7 @@
       function settlePendingJump() {
         const jump = state.pendingJump;
         state.pendingJump = null;
-        if (!jump || !state.pdf || !state.numPages) return;
+        if (!jump || !state.numPages) return;
         if (performance.now() - jump.at > 60000) return;
 
         const targets = state.view === "canvas"
@@ -3864,7 +5468,7 @@
           els.progressRail.setAttribute("aria-valuenow", String(percent));
         }
 
-        if (!state.pdf || !state.numPages) return;
+        if (!state.numPages) return;
 
         const toolbarBottom = els.toolbar.getBoundingClientRect().bottom;
         const marker = toolbarBottom + Math.min(window.innerHeight * 0.2, 150);
@@ -3912,7 +5516,7 @@
       }
 
       function refreshVisibleAnchors() {
-        if (!state.pdf || state.view !== "glisse" || !state.numPages) return;
+        if (!state.numPages || state.view !== "glisse") return;
         const ratio = state.prefs.intensity / 100;
         const first = Math.max(1, state.currentPage - 2);
         const last = Math.min(state.numPages, state.currentPage + 2);
@@ -3944,7 +5548,7 @@
           let page = 1;
 
           state.anchorFullTimer = setTimeout(function step() {
-            if (!state.pdf || token !== state.docToken) return;
+            if (!state.numPages || token !== state.docToken) return;
             if (Math.abs(state.prefs.intensity / 100 - targetRatio) > 0.0001) return;
 
             let processed = 0;
@@ -4001,7 +5605,7 @@
       }
 
       function showWelcomeError(message) {
-        if (state.pdf) return;
+        if (state.numPages) return;
         els.welcomeError.textContent = message;
         els.welcomeError.hidden = false;
       }
@@ -4191,6 +5795,11 @@
         });
 
         els.textNotice.addEventListener("click", (event) => {
+          if (event.target.closest("#noticeOcr")) {
+            if (state.ocr.running) stopOcr();
+            else runOcr();
+            return;
+          }
           if (!event.target.closest("#noticeCanvas")) return;
           const sparseIndex = state.pageData.findIndex((page) => page && page.sparse);
           const target = sparseIndex >= 0 ? sparseIndex + 1 : state.currentPage;
@@ -4200,6 +5809,12 @@
         });
 
         els.glisseDoc.addEventListener("click", (event) => {
+          const ocrButton = event.target.closest("[data-ocr-page]");
+          if (ocrButton) {
+            runOcr([Number(ocrButton.dataset.ocrPage) || state.currentPage]);
+            return;
+          }
+
           const button = event.target.closest("[data-open-canvas-page]");
           if (!button) return;
           const page = clamp(Number(button.dataset.openCanvasPage) || 1, 1, state.numPages);
@@ -4281,7 +5896,7 @@
           clearTimeout(resizeTimer);
           resizeTimer = setTimeout(() => {
             handleViewportChange();
-            if (!state.pdf) return;
+            if (!state.numPages) return;
             ensureVisibleCanvases();
             measureScroll();
           }, 180);
@@ -4401,15 +6016,9 @@
           else if (colorSchemeQuery.addListener) colorSchemeQuery.addListener(handleColorScheme);
         }
 
-        if (typeof pdfjsLib === "undefined") {
-          const message = "The reading engine could not be loaded. Check your connection and reload the page.";
-          showWelcomeError(message);
-          els.openButton.disabled = true;
-          els.dropzone.disabled = true;
-          return;
+        if (typeof pdfjsLib !== "undefined") {
+          pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
         }
-
-        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
       }
 
       if (document.readyState === "loading") {
